@@ -339,16 +339,23 @@ class NMRSampleManager {
         }
 
         try {
-            // Check if React JSON Schema Form is loaded (v1.8.1)
+            // Check if React JSON Schema Form v1.8.1 is loaded
+            console.log('Available globals:', Object.keys(window).filter(k => 
+                k.includes('JSON') || k.includes('Form') || k.includes('RJSF')
+            ));
+            
             if (!window.JSONSchemaForm) {
                 formContainer.innerHTML = '<p class="error">React JSON Schema Form not loaded. Please check your internet connection.</p>';
                 return;
             }
 
-            // For v1.8.1, extract the Form component correctly
-            const Form = window.JSONSchemaForm.default || window.JSONSchemaForm.Form || window.JSONSchemaForm;
+            // Use the working v1.8.1 API
+            const Form = window.JSONSchemaForm.default || window.JSONSchemaForm;
             
-            // Create React form props (v1.8.1 API)
+            console.log('Form component:', Form);
+            console.log('Form type:', typeof Form);
+            
+            // Create React form props (v1.8.1 API - simple and reliable)
             const formProps = {
                 schema: this.schemaHandler.getSchema(),
                 uiSchema: this.schemaHandler.getUISchema(),
@@ -362,7 +369,7 @@ class NMRSampleManager {
             // Create form element using React.createElement
             const formElement = React.createElement(Form, formProps);
             
-            // Render React component
+            // Use ReactDOM.render (React 16)
             ReactDOM.render(formElement, formContainer);
             this.currentReactRoot = formContainer;
             

@@ -13,6 +13,7 @@ body {
     line-height: 1.5;
     height: 100vh;
     overflow: hidden;
+    font-size: 16px;
 }
 
 /* App Container */
@@ -54,7 +55,7 @@ body {
 }
 
 .sidebar h3 {
-    font-size: 1rem;
+    font-size: 1.2rem;
     font-weight: 600;
     color: #495057;
     margin-bottom: 0.75rem;
@@ -77,7 +78,7 @@ body {
 #current-folder {
     flex: 1;
     font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
-    font-size: 0.875rem;
+    font-size: 1rem;
     color: #6c757d;
     padding: 0.5rem 0.75rem;
     background: #f8f9fa;
@@ -142,7 +143,7 @@ body {
 .sample-filename {
     flex: 1;
     font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
-    font-size: 0.875rem;
+    font-size: 1rem;
     color: #495057;
 }
 
@@ -218,7 +219,7 @@ body {
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.875rem;
+    font-size: 1rem;
     font-weight: 500;
     text-align: center;
     text-decoration: none;
@@ -364,48 +365,7 @@ body {
     padding: 0.75rem;
 }
 
-/* Form Styling */
-#sample-form form {
-    background: white;
-    border-radius: 6px;
-    padding: 1.5rem;
-}
-
-#sample-form .form-group {
-    margin-bottom: 1.25rem;
-}
-
-#sample-form label {
-    font-weight: 600;
-    color: #495057;
-    margin-bottom: 0.5rem;
-    display: block;
-    font-size: 0.875rem;
-}
-
-#sample-form input,
-#sample-form select,
-#sample-form textarea {
-    width: 100%;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 0.875rem;
-    transition: border-color 0.15s ease;
-}
-
-#sample-form input:focus,
-#sample-form select:focus,
-#sample-form textarea:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-}
-
-#sample-form .btn {
-    margin-top: 1rem;
-    margin-right: 0.5rem;
-}
+/* Let Bootstrap 3 handle all form styling - no custom overrides */
 
 /* Error and Loading States */
 .error {

@@ -31,6 +31,23 @@
                                 "type": "string",
                                 "description": "Molecule name"
                             },
+                            "Concentration": {
+                                "type": "number",
+                                "minimum": 0
+                            },
+                            "Unit": {
+                                "enum": [
+                                    "uM",
+                                    "mM",
+                                    "M",
+                                    "mg/mL",
+                                    "%w/v",
+                                    "%v/v",
+                                    "equiv"
+                                ],
+                                "default": "uM",
+                                "type": "string"
+                            },
                             "Isotopic labelling": {
                                 "enum": [
                                     "unlabelled",
@@ -54,28 +71,6 @@
                             "Custom labelling": {
                                 "type": "string",
                                 "description": "Custom labelling description if 'custom' is selected above"
-                            },
-                            "Concentration": {
-                                "type": "object",
-                                "properties": {
-                                    "value": {
-                                        "type": "number",
-                                        "minimum": 0
-                                    },
-                                    "unit": {
-                                        "enum": [
-                                            "uM",
-                                            "mM",
-                                            "M",
-                                            "mg/mL",
-                                            "%w/v",
-                                            "%v/v",
-                                            "equiv"
-                                        ],
-                                        "default": "uM",
-                                        "type": "string"
-                                    }
-                                }
                             }
                         }
                     },
@@ -102,27 +97,22 @@
                                 "type": "string",
                                 "description": "Buffer component name (e.g., Tris-HCl, NaCl, EDTA)"
                             },
-                            "concentration": {
-                                "type": "object",
-                                "properties": {
-                                    "value": {
-                                        "type": "number",
-                                        "minimum": 0
-                                    },
-                                    "unit": {
-                                        "enum": [
-                                            "uM",
-                                            "mM",
-                                            "M",
-                                            "mg/mL",
-                                            "%w/v",
-                                            "%v/v",
-                                            "%w/w"
-                                        ],
-                                        "default": "mM",
-                                        "type": "string"
-                                    }
-                                }
+                            "Concentration": {
+                                "type": "number",
+                                "minimum": 0
+                            },
+                            "Unit": {
+                                "enum": [
+                                    "uM",
+                                    "mM",
+                                    "M",
+                                    "mg/mL",
+                                    "%w/v",
+                                    "%v/v",
+                                    "$w/w"
+                                ],
+                                "default": "mM",
+                                "type": "string"
                             }
                         }
                     },
@@ -152,9 +142,9 @@
             "properties": {
                 "Diameter": {
                     "enum": [
-                        "3mm",
-                        "5mm",
-                        "1.7mm"
+                        "1.7 mm",
+                        "3 mm",
+                        "5 mm"
                     ],
                     "type": "string",
                     "description": "NMR tube diameter"
@@ -169,21 +159,15 @@
                     ],
                     "description": "Type of NMR tube"
                 }
-            }
-        },
-        "Sample Position": {
-            "type": "object",
-            "description": "",
-            "properties": {
-                "Rack Position": {
-                    "type": "string",
-                    "pattern": "^[A-H][1-9][0-9]?$",
-                    "description": "Position in sample rack (e.g., A3, G11)"
-                },
-                "Rack ID": {
-                    "type": "string",
-                    "description": "Identifier for the specific rack"
-                }
+            },
+            "SampleJet Rack Position": {
+                "type": "string",
+                "pattern": "^[A-H][1-9][0-9]?$",
+                "description": "Position in SampleJet rack (e.g., A3, G11)"
+            },
+            "SampleJet Rack ID": {
+                "type": "string",
+                "description": "Identifier for the specific rack"
             }
         },
         "Laboratory Reference": {
