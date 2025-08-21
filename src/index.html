@@ -12,39 +12,53 @@
 </head>
 <body>
     <div id="app">
-        <div class="container">
-            <h1>NMR Sample Manager</h1>
+        <div class="app-container">
+            <header class="app-header">
+                <h1>NMR Sample Manager</h1>
+            </header>
             
-            <!-- Folder Selection Section -->
-            <section class="folder-section">
-                <div class="folder-row">
-                    <label>Folder: </label>
-                    <span id="current-folder">/path/to/current/dataset</span>
-                    <button id="browse-folder" class="btn btn-primary">Browse</button>
-                </div>
-            </section>
+            <div class="main-content">
+                <!-- Left Sidebar -->
+                <aside class="sidebar">
+                    <!-- Folder Selection -->
+                    <div class="folder-section">
+                        <h3>Dataset Folder</h3>
+                        <div class="folder-display">
+                            <span id="current-folder">No folder selected</span>
+                            <button id="browse-folder" class="btn btn-primary btn-sm">Browse</button>
+                        </div>
+                    </div>
 
-            <!-- Sample List Section -->
-            <section class="sample-list-section">
-                <h3>Samples in this folder:</h3>
-                <div id="sample-list" class="sample-list">
-                    <!-- Sample items will be populated here -->
-                </div>
-                <div class="sample-actions">
-                    <button id="new-sample" class="btn btn-success">New Sample</button>
-                    <button id="duplicate-sample" class="btn btn-info" disabled>Duplicate & Edit</button>
-                    <button id="edit-sample" class="btn btn-warning" disabled>Edit</button>
-                    <button id="eject-sample" class="btn btn-danger" disabled>Eject</button>
-                </div>
-            </section>
+                    <!-- Sample List -->
+                    <div class="sample-list-section">
+                        <h3>Samples</h3>
+                        <div id="sample-list" class="sample-list">
+                            <p class="placeholder">Select a folder to see samples</p>
+                        </div>
+                        
+                        <!-- Sample Actions -->
+                        <div class="sample-actions">
+                            <button id="new-sample" class="btn btn-success btn-sm">New Sample</button>
+                            <button id="duplicate-sample" class="btn btn-info btn-sm" disabled>Duplicate</button>
+                            <button id="edit-sample" class="btn btn-warning btn-sm" disabled>Edit</button>
+                            <button id="eject-sample" class="btn btn-danger btn-sm" disabled>Eject</button>
+                        </div>
+                    </div>
+                </aside>
 
-            <!-- Sample Details/Edit Form Section -->
-            <section class="sample-form-section">
-                <h3>Sample Details:</h3>
-                <div id="sample-form" class="form-container">
-                    <p class="form-placeholder">Select a sample or create a new one to see the form</p>
-                </div>
-            </section>
+                <!-- Main Content Area -->
+                <main class="content-area">
+                    <div class="content-header">
+                        <h2 id="content-title">Sample Details</h2>
+                    </div>
+                    <div id="sample-form" class="content-body">
+                        <div class="welcome-message">
+                            <h3>Welcome to NMR Sample Manager</h3>
+                            <p>Select a folder and choose a sample to view its details, or create a new sample to get started.</p>
+                        </div>
+                    </div>
+                </main>
+            </div>
         </div>
     </div>
 

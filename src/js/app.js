@@ -150,8 +150,13 @@ class NMRSampleManager {
         
         try {
             const status = await this.fileManager.getSampleStatus(filename);
-            statusSpan.textContent = status.toUpperCase();
-            statusSpan.classList.add(`status-${status}`);
+            // Only show EJECTED status, hide others
+            if (status === 'ejected') {
+                statusSpan.textContent = 'EJECTED';
+                statusSpan.classList.add('status-ejected');
+            } else {
+                statusSpan.style.display = 'none';
+            }
         } catch (error) {
             statusSpan.textContent = 'ERROR';
             statusSpan.classList.add('status-error');
@@ -328,8 +333,8 @@ class NMRSampleManager {
         formContainer.innerHTML = '';
         
         if (!editable) {
-            // Show read-only data
-            formContainer.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            // Show nicely formatted sample details
+            formContainer.innerHTML = this.generateSampleDetailsView(data);
             return;
         }
 
@@ -418,6 +423,250 @@ class NMRSampleManager {
         });
         
         this.updateButtonStates(false);
+    }
+
+    generateSampleDetailsView(data) {
+        const sampleLabel = data.Sample?.Label || 'Untitled Sample';
+        
+        return `
+            <div class="sample-details">
+                <div class="sample-details-header">
+                    <h3>${this.escapeHtml(sampleLabel)}</h3>
+                </div>
+                <div class="sample-details-body">
+                    ${this.generateUsersSection(data.Users)}
+                    ${this.generateSampleSection(data.Sample)}
+                    ${this.generateBufferSection(data.Buffer)}
+                    ${this.generateNMRTubeSection(data['NMR Tube'])}
+                    ${this.generatePositionSection(data['Sample Position'])}
+                    ${this.generateLabReferenceSection(data['Laboratory Reference'])}
+                    ${this.generateNotesSection(data.Notes)}
+                    ${this.generateMetadataSection(data.Metadata)}
+                </div>
+            </div>
+        `;
+    }
+
+    escapeHtml(unsafe) {
+        if (!unsafe) return '';
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    generateUsersSection(users) {
+        if (!users || users.length === 0) return '';
+        
+        return `
+            <div class="detail-section">
+                <h4>Users</h4>
+                <div class="detail-value">${users.map(user => this.escapeHtml(user)).join(', ')}</div>
+            </div>
+        `;
+    }
+
+    generateSampleSection(sample) {
+        if (!sample) return '';
+        
+        let html = '<div class="detail-section"><h4>Sample</h4><div class="detail-grid">';
+        
+        if (sample.Label) {
+            html += `<div class="detail-item">
+                <span class="detail-label">Label:</span>
+                <span class="detail-value">${this.escapeHtml(sample.Label)}</span>
+            </div>`;
+        }
+        
+        html += '</div>';
+        
+        if (sample.Components && sample.Components.length > 0) {
+            html += '<h5 style="margin: 1rem 0 0.5rem 0; color: #6c757d;">Components</h5>';
+            html += '<div class="component-list">';
+            sample.Components.forEach(component => {
+                html += `<div class="component-item">
+                    <div class="detail-grid">
+                        ${component.Name ? `<div class="detail-item">
+                            <span class="detail-label">Name:</span>
+                            <span class="detail-value">${this.escapeHtml(component.Name)}</span>
+                        </div>` : ''}
+                        ${component['Isotopic labelling'] ? `<div class="detail-item">
+                            <span class="detail-label">Labelling:</span>
+                            <span class="detail-value">${this.escapeHtml(component['Isotopic labelling'])}</span>
+                        </div>` : ''}
+                        ${component.Concentration ? `<div class="detail-item">
+                            <span class="detail-label">Concentration:</span>
+                            <span class="detail-value">${component.Concentration.value || 0} ${component.Concentration.unit || ''}</span>
+                        </div>` : ''}
+                    </div>
+                </div>`;
+            });
+            html += '</div>';
+        }
+        
+        return html + '</div>';
+    }
+
+    generateBufferSection(buffer) {
+        if (!buffer) return '';
+        
+        let html = '<div class="detail-section"><h4>Buffer</h4><div class="detail-grid">';
+        
+        if (buffer.pH !== undefined && buffer.pH !== null) {
+            html += `<div class="detail-item">
+                <span class="detail-label">pH:</span>
+                <span class="detail-value">${buffer.pH}</span>
+            </div>`;
+        }
+        
+        if (buffer.Solvent) {
+            html += `<div class="detail-item">
+                <span class="detail-label">Solvent:</span>
+                <span class="detail-value">${this.escapeHtml(buffer.Solvent)}</span>
+            </div>`;
+        }
+        
+        html += '</div>';
+        
+        if (buffer.Components && buffer.Components.length > 0) {
+            html += '<h5 style="margin: 1rem 0 0.5rem 0; color: #6c757d;">Components</h5>';
+            html += '<div class="component-list">';
+            buffer.Components.forEach(component => {
+                html += `<div class="component-item">
+                    <div class="detail-grid">
+                        ${component.name ? `<div class="detail-item">
+                            <span class="detail-label">Name:</span>
+                            <span class="detail-value">${this.escapeHtml(component.name)}</span>
+                        </div>` : ''}
+                        ${component.concentration ? `<div class="detail-item">
+                            <span class="detail-label">Concentration:</span>
+                            <span class="detail-value">${component.concentration.value || 0} ${component.concentration.unit || ''}</span>
+                        </div>` : ''}
+                    </div>
+                </div>`;
+            });
+            html += '</div>';
+        }
+        
+        return html + '</div>';
+    }
+
+    generateNMRTubeSection(tube) {
+        if (!tube) return '';
+        
+        let html = '<div class="detail-section"><h4>NMR Tube</h4><div class="detail-grid">';
+        
+        if (tube.Diameter) {
+            html += `<div class="detail-item">
+                <span class="detail-label">Diameter:</span>
+                <span class="detail-value">${this.escapeHtml(tube.Diameter)}</span>
+            </div>`;
+        }
+        
+        if (tube.Type) {
+            html += `<div class="detail-item">
+                <span class="detail-label">Type:</span>
+                <span class="detail-value">${this.escapeHtml(tube.Type)}</span>
+            </div>`;
+        }
+        
+        return html + '</div></div>';
+    }
+
+    generatePositionSection(position) {
+        if (!position) return '';
+        
+        let html = '<div class="detail-section"><h4>Sample Position</h4><div class="detail-grid">';
+        
+        if (position['Rack Position']) {
+            html += `<div class="detail-item">
+                <span class="detail-label">Position:</span>
+                <span class="detail-value">${this.escapeHtml(position['Rack Position'])}</span>
+            </div>`;
+        }
+        
+        if (position['Rack ID']) {
+            html += `<div class="detail-item">
+                <span class="detail-label">Rack ID:</span>
+                <span class="detail-value">${this.escapeHtml(position['Rack ID'])}</span>
+            </div>`;
+        }
+        
+        return html + '</div></div>';
+    }
+
+    generateLabReferenceSection(labRef) {
+        if (!labRef) return '';
+        
+        let html = '<div class="detail-section"><h4>Laboratory Reference</h4><div class="detail-grid">';
+        
+        if (labRef['Labbook Entry']) {
+            html += `<div class="detail-item">
+                <span class="detail-label">Labbook:</span>
+                <span class="detail-value">${this.escapeHtml(labRef['Labbook Entry'])}</span>
+            </div>`;
+        }
+        
+        if (labRef['Experiment ID']) {
+            html += `<div class="detail-item">
+                <span class="detail-label">Experiment:</span>
+                <span class="detail-value">${this.escapeHtml(labRef['Experiment ID'])}</span>
+            </div>`;
+        }
+        
+        return html + '</div></div>';
+    }
+
+    generateNotesSection(notes) {
+        if (!notes) return '';
+        
+        return `
+            <div class="detail-section">
+                <h4>Notes</h4>
+                <div class="detail-value" style="white-space: pre-wrap;">${this.escapeHtml(notes)}</div>
+            </div>
+        `;
+    }
+
+    generateMetadataSection(metadata) {
+        if (!metadata) return '';
+        
+        let html = '<div class="detail-section"><h4>Metadata</h4><div class="detail-grid">';
+        
+        if (metadata.created_timestamp) {
+            const created = new Date(metadata.created_timestamp).toLocaleString();
+            html += `<div class="detail-item">
+                <span class="detail-label">Created:</span>
+                <span class="detail-value">${created}</span>
+            </div>`;
+        }
+        
+        if (metadata.modified_timestamp) {
+            const modified = new Date(metadata.modified_timestamp).toLocaleString();
+            html += `<div class="detail-item">
+                <span class="detail-label">Modified:</span>
+                <span class="detail-value">${modified}</span>
+            </div>`;
+        }
+        
+        if (metadata.ejected_timestamp) {
+            const ejected = new Date(metadata.ejected_timestamp).toLocaleString();
+            html += `<div class="detail-item">
+                <span class="detail-label">Ejected:</span>
+                <span class="detail-value">${ejected}</span>
+            </div>`;
+        }
+        
+        if (metadata.schema_version) {
+            html += `<div class="detail-item">
+                <span class="detail-label">Schema:</span>
+                <span class="detail-value">v${metadata.schema_version}</span>
+            </div>`;
+        }
+        
+        return html + '</div></div>';
     }
 
     showError(message) {
