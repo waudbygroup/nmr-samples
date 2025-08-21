@@ -15,7 +15,7 @@ A standalone web application for managing NMR sample metadata in TopSpin environ
 - **Standalone web application**: No servers or complex installation required
 - **TopSpin integration**: Simple Python scripts for workflow integration
 - **Schema-driven**: JSON Schema defines data structure and validation
-- **Human-readable storage**: YAML files for metadata persistence
+- **Human-readable storage**: JSON files for metadata persistence
 - **Version control friendly**: Text-based storage with clear schema versioning
 
 ### System Components
@@ -31,7 +31,7 @@ A standalone web application for managing NMR sample metadata in TopSpin environ
 │                                               │
 ├─ Data Layer ─────────────────────────────────┤
 │  ├─ JSON Schema (validation/structure)       │
-│  ├─ YAML files (sample metadata)             │
+│  ├─ JSON files (sample metadata)             │
 │  └─ Favourites/templates                     │
 │                                               │
 ├─ TopSpin Integration ───────────────────────┤
@@ -66,8 +66,8 @@ nmr-sample-manager/
 │   ├── sample_launcher.py      # Main launcher script
 │   └── install_commands.sh     # TopSpin command installation
 ├── favourites/
-│   ├── common_buffers.yaml     # Template buffer compositions
-│   └── labelling_schemes.yaml  # Common isotopic labelling setups
+│   ├── common_buffers.json     # Template buffer compositions
+│   └── labelling_schemes.json  # Common isotopic labelling setups
 └── docs/
     ├── installation.md         # Installation instructions
     ├── usage.md               # User guide
@@ -85,52 +85,57 @@ nmr-sample-manager/
 
 ### Sample Metadata Structure
 
-```yaml
-metadata:
-  created_timestamp: "2025-08-21T14:30:22Z"
-  modified_timestamp: "2025-08-21T15:45:30Z"
-  schema_version: "1.0.0"
-
-users: ["researcher1", "researcher2"]
-
-sample:
-  name: "MyProtein_pH7"
-  components:
-    - name: "MyProtein"
-      isotopic_labelling: "15N"
-      concentration:
-        value: 500
-        unit: "uM"
-
-buffer:
-  components:
-    - name: "Tris-HCl"
-      concentration:
-        value: 50
-        unit: "mM"
-  pH: 7.4
-  solvent: "10% D2O"
-
-nmr_tube:
-  diameter: "5mm"
-  type: "shigemi"
-
-sample_position:
-  rack_position: "A3"
-  rack_id: "Rack-001"
-
-laboratory_reference:
-  lab_book_entry: "LB2025-08-001"
-  experiment_id: "EXP-001"
-
-notes: "Sample prepared for HSQC experiments"
+```json
+{
+  "Metadata": {
+    "created_timestamp": "2025-08-21T14:30:22Z",
+    "modified_timestamp": "2025-08-21T15:45:30Z",
+    "schema_version": "0.0.1"
+  },
+  "Users": ["researcher1", "researcher2"],
+  "Sample": {
+    "Label": "MyProtein_pH7",
+    "Components": [{
+      "Name": "MyProtein",
+      "Isotopic labelling": "15N",
+      "Concentration": {
+        "value": 500,
+        "unit": "uM"
+      }
+    }]
+  },
+  "Buffer": {
+    "Components": [{
+      "name": "Tris-HCl",
+      "concentration": {
+        "value": 50,
+        "unit": "mM"
+      }
+    }],
+    "pH": 7.4,
+    "Solvent": "10% D2O"
+  },
+  "NMR Tube": {
+    "Diameter": "5mm",
+    "Type": "shigemi"
+  },
+  "Sample Position": {
+    "Rack Position": "A3",
+    "Rack ID": "Rack-001"
+  },
+  "Laboratory Reference": {
+    "Labbook Entry": "LB2025-08-001",
+    "Experiment ID": "EXP-001"
+  },
+  "Notes": "Sample prepared for HSQC experiments"
+}
 ```
 
 ### File Naming Convention
 
 ```
-{timestamp}_{sample_name}.yaml
-2025-08-21_143022_MyProtein.yaml
+{timestamp}_{sample_name}.json
+2025-08-21_143022_MyProtein.json
 ```
 
 ## User Interface
@@ -193,14 +198,14 @@ os.system("ej")
 ### Dependencies
 
 - **React JSON Schema Form**: Form generation and validation
-- **js-yaml**: YAML parsing and generation
+- **Native JSON**: Built-in JavaScript JSON parsing
 - **File System Access API**: Direct file operations
 - **No build process**: Direct HTML/JavaScript deployment
 
 ### File Operations
 
-- **Read**: Load existing YAML files from selected directory
-- **Write**: Save new/modified samples as YAML
+- **Read**: Load existing JSON files from selected directory
+- **Write**: Save new/modified samples as JSON
 - **Validation**: Schema validation before save
 - **Error handling**: Graceful handling of file permissions/errors
 
@@ -283,7 +288,7 @@ When implementing the web interface:
 ## Notes
 
 - All fields optional to encourage adoption
-- Human-readable YAML for transparency
+- Human-readable JSON for transparency
 - Schema-driven development for maintainability
 - Browser-based for maximum compatibility
 - Git-friendly for version control and collaboration

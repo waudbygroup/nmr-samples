@@ -1,0 +1,352 @@
+/* NMR Sample Manager Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 20px auto;
+    background: white;
+    border: 2px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    background: #333;
+    color: white;
+    padding: 15px 20px;
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Section Styles */
+section {
+    padding: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+section:last-child {
+    border-bottom: none;
+}
+
+/* Folder Selection */
+.folder-section {
+    background: #f8f9fa;
+    border-bottom: 2px solid #333;
+}
+
+.folder-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.folder-row label {
+    font-weight: bold;
+    min-width: 60px;
+}
+
+#current-folder {
+    flex: 1;
+    font-family: monospace;
+    background: white;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Sample List */
+.sample-list-section h3 {
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+.sample-list {
+    margin-bottom: 15px;
+    min-height: 120px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    background: #fafafa;
+}
+
+.sample-item {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    margin: 4px 0;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.sample-item:hover {
+    background-color: #e9ecef;
+}
+
+.sample-item.selected {
+    background-color: #007bff;
+    color: white;
+}
+
+.sample-item input[type="radio"] {
+    margin-right: 10px;
+}
+
+.sample-filename {
+    font-family: monospace;
+    flex: 1;
+}
+
+.sample-status {
+    font-size: 0.9rem;
+    color: #666;
+    margin-left: 10px;
+}
+
+.sample-item.selected .sample-status {
+    color: #e6f3ff;
+}
+
+/* Sample Actions */
+.sample-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+/* Buttons */
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: #0056b3;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+    background-color: #1e7e34;
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.btn-info:hover:not(:disabled) {
+    background-color: #117a8b;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.btn-warning:hover:not(:disabled) {
+    background-color: #e0a800;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background-color: #c82333;
+}
+
+/* Form Section */
+.sample-form-section h3 {
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+.form-container {
+    min-height: 300px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fafafa;
+}
+
+.form-placeholder {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    margin-top: 100px;
+}
+
+/* Form Styling for React JSON Schema Form */
+#sample-form {
+    background: white;
+    border-radius: 4px;
+    overflow-y: auto;
+    max-height: 600px;
+}
+
+#sample-form form {
+    padding: 20px;
+}
+
+#sample-form .form-group {
+    margin-bottom: 15px;
+}
+
+#sample-form label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    display: block;
+    color: #333;
+}
+
+#sample-form input, 
+#sample-form select, 
+#sample-form textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+#sample-form input:focus, 
+#sample-form select:focus, 
+#sample-form textarea:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+#sample-form .btn {
+    margin-right: 10px;
+    margin-top: 20px;
+}
+
+#sample-form .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#sample-form .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+/* Array field styling */
+#sample-form .array-item {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+}
+
+#sample-form .array-item-toolbox {
+    text-align: right;
+    margin-top: 10px;
+}
+
+#sample-form .array-item-add, 
+#sample-form .array-item-remove {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+#sample-form .array-item-add:hover, 
+#sample-form .array-item-remove:hover {
+    background-color: #5a6268;
+}
+
+#sample-form .array-item-remove {
+    background-color: #dc3545;
+}
+
+#sample-form .array-item-remove:hover {
+    background-color: #c82333;
+}
+
+/* Field descriptions */
+#sample-form .field-description {
+    font-size: 12px;
+    color: #666;
+    margin-top: 2px;
+    font-style: italic;
+}
+
+/* Error styling */
+#sample-form .has-error input,
+#sample-form .has-error select,
+#sample-form .has-error textarea {
+    border-color: #dc3545;
+}
+
+#sample-form .text-danger {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+/* Status indicators */
+.status-injected {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.status-ejected {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.status-ready {
+    color: #007bff;
+    font-weight: bold;
+}
+

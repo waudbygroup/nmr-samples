@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NMR Sample Manager</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- React and React JSON Schema Form - using working CDN -->
+    <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-jsonschema-form@1.8.1/dist/react-jsonschema-form.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <h1>NMR Sample Manager</h1>
+            
+            <!-- Folder Selection Section -->
+            <section class="folder-section">
+                <div class="folder-row">
+                    <label>Folder: </label>
+                    <span id="current-folder">/path/to/current/dataset</span>
+                    <button id="browse-folder" class="btn btn-primary">Browse</button>
+                </div>
+            </section>
+
+            <!-- Sample List Section -->
+            <section class="sample-list-section">
+                <h3>Samples in this folder:</h3>
+                <div id="sample-list" class="sample-list">
+                    <!-- Sample items will be populated here -->
+                </div>
+                <div class="sample-actions">
+                    <button id="new-sample" class="btn btn-success">New Sample</button>
+                    <button id="duplicate-sample" class="btn btn-info" disabled>Duplicate & Edit</button>
+                    <button id="edit-sample" class="btn btn-warning" disabled>Edit</button>
+                    <button id="eject-sample" class="btn btn-danger" disabled>Eject</button>
+                </div>
+            </section>
+
+            <!-- Sample Details/Edit Form Section -->
+            <section class="sample-form-section">
+                <h3>Sample Details:</h3>
+                <div id="sample-form" class="form-container">
+                    <p class="form-placeholder">Select a sample or create a new one to see the form</p>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Embedded Schema -->
+    <script>
+        window.EMBEDDED_SCHEMA = {
+            "title": "NMR Sample Metadata",
+            "description": "Schema for NMR sample metadata collection in TopSpin environments",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [],
+            "properties": {
+                "Users": {
+                    "type": "array",
+                    "description": "People involved in this experiment",
+                    "items": {"type": "string"},
+                    "minItems": 1
+                },
+                "Sample": {
+                    "type": "object",
+                    "properties": {
+                        "Label": {"type": "string", "description": "Quick sample identifier"},
+                        "Components": {
+                            "type": "array",
+                            "description": "Sample components (allows for multiple components)",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "Name": {"type": "string", "description": "Molecule name"},
+                                    "Isotopic labelling": {
+                                        "enum": ["unlabelled", "15N", "13C", "13C,15N", "2H,13C,15N", "Ile-δ1-13CH3", "Leu/Val-13CH3", "ILV-13CH3", "ILV-13CH3,15N", "Met-13CH3", "Met-13CH3,15N", "ILVM-13CH3", "AILV-13CH3", "custom"],
+                                        "type": "string",
+                                        "description": "Type of isotopic labelling used"
+                                    },
+                                    "Custom labelling": {"type": "string", "description": "Custom labelling description if 'custom' is selected above"},
+                                    "Concentration": {
+                                        "type": "object",
+                                        "properties": {
+                                            "value": {"type": "number", "minimum": 0},
+                                            "unit": {"enum": ["uM", "mM", "M", "mg/mL", "%w/v", "%v/v", "equiv"], "default": "uM", "type": "string"}
+                                        }
+                                    }
+                                }
+                            },
+                            "minItems": 1
+                        }
+                    }
+                },
+                "Buffer": {
+                    "type": "object",
+                    "properties": {
+                        "pH": {"type": "number", "minimum": 0, "maximum": 14, "description": "Buffer pH"},
+                        "Components": {
+                            "type": "array",
+                            "description": "Buffer components and their concentrations",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {"type": "string", "description": "Buffer component name (e.g., Tris-HCl, NaCl, EDTA)"},
+                                    "concentration": {
+                                        "type": "object",
+                                        "properties": {
+                                            "value": {"type": "number", "minimum": 0},
+                                            "unit": {"enum": ["uM", "mM", "M", "mg/mL", "%w/v", "%v/v", "%w/w"], "default": "mM", "type": "string"}
+                                        }
+                                    }
+                                }
+                            },
+                            "minItems": 0
+                        },
+                        "Solvent": {"enum": ["custom", "10% D2O", "100% D2O", "CDCl3", "D6-DMSO", "D4-Methanol"], "type": "string", "description": "Solvent composition"},
+                        "Custom solvent": {"type": "string", "description": "Custom solvent description if 'custom' is selected above"}
+                    },
+                    "required": []
+                },
+                "NMR Tube": {
+                    "type": "object",
+                    "properties": {
+                        "Diameter": {"enum": ["3mm", "5mm", "1.7mm"], "type": "string", "description": "NMR tube diameter"},
+                        "Type": {"type": "string", "enum": ["regular", "shigemi", "shaped", "coaxial"], "description": "Type of NMR tube"}
+                    }
+                },
+                "Sample Position": {
+                    "type": "object",
+                    "properties": {
+                        "Rack Position": {"type": "string", "pattern": "^[A-H][1-9][0-9]?$", "description": "Position in sample rack (e.g., A3, G11)"},
+                        "Rack ID": {"type": "string", "description": "Identifier for the specific rack"}
+                    }
+                },
+                "Laboratory Reference": {
+                    "type": "object",
+                    "properties": {
+                        "Labbook Entry": {"type": "string", "description": "Reference to laboratory notebook entry"},
+                        "Experiment ID": {"type": "string", "description": "Local experiment identifier"}
+                    }
+                },
+                "Notes": {"type": "string", "description": "Free text field for additional notes and observations"},
+                "Metadata": {
+                    "type": "object",
+                    "properties": {
+                        "created_timestamp": {"type": "string", "format": "date-time"},
+                        "modified_timestamp": {"type": "string", "format": "date-time"},
+                        "ejected_timestamp": {"type": "string", "format": "date-time"},
+                        "schema_version": {"type": "string", "default": "0.0.1"}
+                    }
+                }
+            }
+        };
+    </script>
+
+    <!-- Scripts -->
+    <script src="js/file-manager.js"></script>
+    <script src="js/schema-handler.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
