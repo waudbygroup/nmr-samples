@@ -78,17 +78,48 @@ body {
     gap: 0.75rem;
 }
 
-#current-folder {
-    flex: 1;
-    font-size: 1rem;
+/* Directory Grid Layout */
+.directory-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.directory-row {
+    display: grid;
+    grid-template-columns: 80px 1fr auto;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.directory-label {
+    font-size: 0.875rem;
+    font-weight: 600;
     color: #6c757d;
-    padding: 0.5rem 0.75rem;
+    text-align: right;
+}
+
+.directory-path {
+    font-size: 0.875rem;
+    color: #495057;
+    padding: 0.25rem 0.5rem;
     background: #f8f9fa;
     border: 1px solid #dee2e6;
-    border-radius: 4px;
+    border-radius: 3px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    min-height: 1.75rem;
+    display: flex;
+    align-items: center;
+}
+
+/* Remove root folder bold styling */
+
+/* Legacy support */
+#current-folder,
+#root-folder {
+    flex: 1;
 }
 
 /* Sample List Section */

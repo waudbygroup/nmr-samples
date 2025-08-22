@@ -22,11 +22,20 @@
                 <!-- Left Sidebar -->
                 <aside class="sidebar">
                     <!-- Folder Selection -->
+                    <!-- Directory Selection -->
                     <div class="folder-section">
-                        <h3>Dataset Folder</h3>
-                        <div class="folder-display">
-                            <span id="current-folder">No folder selected</span>
-                            <button id="browse-folder" class="btn btn-primary btn-sm">Browse</button>
+                        <h3>Directories</h3>
+                        <div class="directory-grid">
+                            <div class="directory-row">
+                                <span class="directory-label">Root:</span>
+                                <span id="root-folder" class="directory-path">No root directory set</span>
+                                <button id="set-root-folder" class="btn btn-primary btn-sm">Set</button>
+                            </div>
+                            <div class="directory-row">
+                                <span class="directory-label">Experiment:</span>
+                                <span id="current-folder" class="directory-path">No folder selected</span>
+                                <button id="browse-subfolder" class="btn btn-info btn-sm">Browse</button>
+                            </div>
                         </div>
                     </div>
 
@@ -156,6 +165,7 @@
     </script>
 
     <!-- Scripts -->
+    <script src="js/storage.js"></script>
     <script src="js/file-manager.js"></script>
     <script src="js/schema-handler.js"></script>
     <script src="js/app.js"></script>

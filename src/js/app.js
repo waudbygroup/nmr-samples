@@ -15,6 +15,7 @@ class NMRSampleManager {
         // Bind event handlers
         this.fileManager.onDirectoryChanged = this.handleDirectoryChanged.bind(this);
         this.fileManager.onSamplesChanged = this.handleSamplesChanged.bind(this);
+        this.fileManager.onRootDirectoryChanged = this.handleRootDirectoryChanged.bind(this);
 
         this.init();
     }
@@ -27,11 +28,17 @@ class NMRSampleManager {
                 return;
             }
 
+            // Initialize FileManager with storage
+            await this.fileManager.initialize();
+
             // Load schema
             await this.schemaHandler.loadSchema();
 
             // Setup UI event listeners
             this.setupEventListeners();
+
+            // Check for folder parameter in URL after initialization is complete
+            await this.handleURLParameters();
 
             // Show ready message
             console.log('NMR Sample Manager initialized successfully');
@@ -42,10 +49,102 @@ class NMRSampleManager {
         }
     }
 
+    async handleURLParameters() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const folderParam = urlParams.get('folder');
+        
+        if (folderParam) {
+            if (this.fileManager.rootDirectoryHandle) {
+                // Strip root directory path from folder param if present
+                let relativePath = folderParam;
+                const rootName = this.fileManager.rootDirectoryHandle.name;
+                
+                // Handle different path formats: /Users/chris/NMR/spec/exp vs spec/exp
+                if (folderParam.includes(rootName)) {
+                    const rootIndex = folderParam.indexOf(rootName);
+                    if (rootIndex !== -1) {
+                        // Extract and store the full root path for display
+                        const fullRootPath = folderParam.substring(0, rootIndex + rootName.length);
+                        this.setStoredRootPath(fullRootPath);
+                        // Update the display immediately
+                        this.handleRootDirectoryChanged(rootName);
+                        
+                        // Extract everything after the root directory name
+                        relativePath = folderParam.substring(rootIndex + rootName.length);
+                        // Remove leading slash if present
+                        relativePath = relativePath.replace(/^\/+/, '');
+                    }
+                }
+                
+                if (relativePath) {
+                    // Check if we have permissions first
+                    try {
+                        const permissionStatus = await this.fileManager.rootDirectoryHandle.queryPermission({ mode: 'readwrite' });
+                        if (permissionStatus === 'granted') {
+                            // We have permissions, try automatic navigation
+                            await this.fileManager.navigateToSubfolder(relativePath);
+                        } else {
+                            // Need user interaction for permissions
+                            this.showNavigationPrompt(relativePath);
+                        }
+                    } catch (error) {
+                        console.error('Error checking permissions for URL navigation:', error);
+                        this.showNavigationPrompt(relativePath);
+                    }
+                }
+            } else {
+                // No root directory set, show message
+                const welcomeMessage = document.querySelector('.welcome-message');
+                if (welcomeMessage) {
+                    welcomeMessage.innerHTML = `
+                        <h3>Set Root Directory First</h3>
+                        <p>To navigate to: <strong>${this.escapeHtml(folderParam)}</strong></p>
+                        <p>Please first set a root directory, then the app will navigate to the requested subfolder.</p>
+                    `;
+                }
+            }
+        }
+    }
+
+    showNavigationPrompt(relativePath) {
+        const welcomeMessage = document.querySelector('.welcome-message');
+        if (welcomeMessage) {
+            welcomeMessage.innerHTML = `
+                <h3>Navigate to Folder</h3>
+                <p>Click the button below to navigate to: <strong>${this.escapeHtml(relativePath)}</strong></p>
+                <button id="navigate-to-url-folder" class="btn btn-primary" style="margin-top: 1rem;">
+                    Grant Access & Navigate
+                </button>
+            `;
+            
+            // Add click handler for the navigation button
+            document.getElementById('navigate-to-url-folder').addEventListener('click', async () => {
+                try {
+                    await this.fileManager.navigateToSubfolder(relativePath);
+                    // Clear the welcome message after successful navigation
+                    welcomeMessage.innerHTML = '<p class="form-placeholder">Select a sample or create a new one to see the form</p>';
+                } catch (error) {
+                    console.error('Error navigating from URL prompt:', error);
+                    welcomeMessage.innerHTML = `
+                        <h3>Navigation Failed</h3>
+                        <p>Could not navigate to: <strong>${this.escapeHtml(relativePath)}</strong></p>
+                        <p>Error: ${this.escapeHtml(error.message)}</p>
+                        <p>Please use "Browse" to select the folder manually.</p>
+                    `;
+                }
+            });
+        }
+    }
+
     setupEventListeners() {
-        // Folder selection
-        document.getElementById('browse-folder').addEventListener('click', () => {
-            this.selectFolder();
+        // Root directory selection
+        document.getElementById('set-root-folder').addEventListener('click', () => {
+            this.setRootDirectory();
+        });
+
+        // Subfolder selection
+        document.getElementById('browse-subfolder').addEventListener('click', () => {
+            this.selectSubfolder();
         });
 
         // Sample management buttons
@@ -66,17 +165,57 @@ class NMRSampleManager {
         });
     }
 
-    async selectFolder() {
+    async setRootDirectory() {
         try {
-            await this.fileManager.selectDirectory();
+            await this.fileManager.setRootDirectory();
         } catch (error) {
-            console.error('Error selecting folder:', error);
-            this.showError('Failed to select folder: ' + error.message);
+            console.error('Error setting root directory:', error);
+            this.showError('Failed to set root directory: ' + error.message);
         }
     }
 
+    async selectSubfolder() {
+        try {
+            // First try to request permissions for current directory if needed
+            if (this.fileManager.rootDirectoryHandle) {
+                const hasPermission = await this.fileManager.requestCurrentDirectoryPermissions();
+                if (hasPermission) {
+                    await this.fileManager.scanForSamples(); // Refresh samples if we got permission
+                }
+            }
+            await this.fileManager.selectSubfolder();
+        } catch (error) {
+            console.error('Error selecting subfolder:', error);
+            this.showError('Failed to select subfolder: ' + error.message);
+        }
+    }
+
+    handleRootDirectoryChanged(rootDirectoryName) {
+        const rootElement = document.getElementById('root-folder');
+        if (rootDirectoryName) {
+            // If we have stored full path context, use it
+            const fullPath = this.getStoredRootPath() || rootDirectoryName;
+            rootElement.textContent = fullPath;
+            rootElement.style.color = '#495057';
+        } else {
+            rootElement.textContent = 'No root directory set';
+            rootElement.style.color = '#6c757d';
+        }
+    }
+
+    getStoredRootPath() {
+        // Try to get full path from localStorage if previously stored
+        return localStorage.getItem('nmr-root-path');
+    }
+
+    setStoredRootPath(path) {
+        localStorage.setItem('nmr-root-path', path);
+    }
+
     handleDirectoryChanged(directoryName) {
-        document.getElementById('current-folder').textContent = directoryName;
+        // Extract just the final folder name from the full path
+        const finalFolderName = directoryName ? directoryName.split('/').pop() : 'No folder selected';
+        document.getElementById('current-folder').textContent = finalFolderName;
     }
 
     async handleSamplesChanged(sampleFilenames) {
