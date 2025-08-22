@@ -141,6 +141,15 @@ class SchemaHandler {
                 pH: {
                     "ui:placeholder": "e.g., 7.4"
                 },
+                'Chemical shift reference': {
+                    "ui:widget": "select"
+                },
+                'Reference concentration': {
+                    "ui:placeholder": "e.g., 0.1"
+                },
+                'Reference unit': {
+                    "ui:widget": "select"
+                },
                 Solvent: {
                     "ui:widget": "select"
                 },

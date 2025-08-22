@@ -82,7 +82,7 @@
             "type": "object",
             "properties": {
                 "pH": {
-                    "type": "number",
+                    "type": ["number", "null"],
                     "minimum": 0,
                     "maximum": 14,
                     "description": "Buffer pH"
@@ -117,6 +117,35 @@
                         }
                     },
                     "minItems": 0
+                },
+                "Chemical shift reference": {
+                    "enum": [
+                        "none",
+                        "DSS",
+                        "TMS",
+                        "TSP"
+                    ],
+                    "type": "string",
+                    "description": "Chemical shift reference compound"
+                },
+                "Reference concentration": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Concentration of chemical shift reference"
+                },
+                "Reference unit": {
+                    "enum": [
+                        "uM",
+                        "mM",
+                        "M",
+                        "mg/mL",
+                        "%w/v",
+                        "%v/v",
+                        "%w/w"
+                    ],
+                    "default": "%w/v",
+                    "type": "string",
+                    "description": "Unit for reference concentration"
                 },
                 "Solvent": {
                     "enum": [
@@ -161,7 +190,7 @@
                 },
                 "SampleJet Rack Position": {
                     "type": "string",
-                    "pattern": "^[A-H][1-9][0-9]?$",
+                    "pattern": "^([A-H][1-9][0-9]?|)$",
                     "description": "Position in SampleJet rack (e.g., A3, G11)"
                 },
                 "SampleJet Rack ID": {

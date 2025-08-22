@@ -101,7 +101,7 @@
                 "Buffer": {
                     "type": "object",
                     "properties": {
-                        "pH": {"type": "number", "minimum": 0, "maximum": 14, "description": "Buffer pH"},
+                        "pH": {"type": ["number", "null"], "minimum": 0, "maximum": 14, "description": "Buffer pH"},
                         "Components": {
                             "type": "array",
                             "description": "Buffer components and their concentrations",
@@ -115,6 +115,9 @@
                             },
                             "minItems": 0
                         },
+                        "Chemical shift reference": {"enum": ["none", "DSS", "TMS", "TSP"], "type": "string", "description": "Chemical shift reference compound"},
+                        "Reference concentration": {"type": "number", "minimum": 0, "description": "Concentration of chemical shift reference"},
+                        "Reference unit": {"enum": ["uM", "mM", "M", "mg/mL", "%w/v", "%v/v", "%w/w"], "default": "%w/v", "type": "string", "description": "Unit for reference concentration"},
                         "Solvent": {"enum": ["custom", "10% D2O", "100% D2O", "CDCl3", "D6-DMSO", "D4-Methanol"], "type": "string", "description": "Solvent composition"},
                         "Custom solvent": {"type": "string", "description": "Custom solvent description if 'custom' is selected above"}
                     },
@@ -125,7 +128,7 @@
                     "properties": {
                         "Diameter": {"enum": ["1.7 mm", "3 mm", "5 mm"], "type": "string", "description": "NMR tube diameter"},
                         "Type": {"type": "string", "enum": ["regular", "shigemi", "shaped", "coaxial"], "description": "Type of NMR tube"},
-                        "SampleJet Rack Position": {"type": "string", "pattern": "^[A-H][1-9][0-9]?$", "description": "Position in SampleJet rack (e.g., A3, G11)"},
+                        "SampleJet Rack Position": {"type": "string", "pattern": "^([A-H][1-9][0-9]?|)$", "description": "Position in SampleJet rack (e.g., A3, G11)"},
                         "SampleJet Rack ID": {"type": "string", "description": "Identifier for the specific rack"}
                     }
                 },

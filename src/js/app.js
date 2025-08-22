@@ -521,6 +521,17 @@ class NMRSampleManager {
             </div>`;
         }
         
+        if (buffer['Chemical shift reference'] && buffer['Chemical shift reference'] !== 'none') {
+            let referenceText = this.escapeHtml(buffer['Chemical shift reference']);
+            if (buffer['Reference concentration'] !== undefined && buffer['Reference unit']) {
+                referenceText += ` (${buffer['Reference concentration']} ${buffer['Reference unit']})`;
+            }
+            html += `<div class="detail-item">
+                <span class="detail-label">Reference:</span>
+                <span class="detail-value">${referenceText}</span>
+            </div>`;
+        }
+        
         if (buffer.Solvent) {
             html += `<div class="detail-item">
                 <span class="detail-label">Solvent:</span>
