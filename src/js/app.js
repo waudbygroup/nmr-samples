@@ -361,7 +361,13 @@ class NMRSampleManager {
                 uiSchema: this.schemaHandler.getUISchema(),
                 formData: data,
                 onSubmit: ({ formData }) => this.handleFormSubmit({ formData }),
-                onError: (errors) => this.handleFormError(errors)
+                onError: (errors) => this.handleFormError(errors),
+                onKeyDown: (e) => {
+                    // Prevent Enter key from submitting form
+                    if (e.key === 'Enter' && e.target.type !== 'submit') {
+                        e.preventDefault();
+                    }
+                }
             };
 
             console.log('Rendering React form with props:', formProps);
@@ -438,14 +444,13 @@ class NMRSampleManager {
         return `
             <div class="sample-details">
                 <div class="sample-details-header">
-                    <h3>${this.escapeHtml(sampleLabel)}</h3>
+                    <h3>Sample: ${this.escapeHtml(sampleLabel)}</h3>
                 </div>
                 <div class="sample-details-body">
                     ${this.generateUsersSection(data.Users)}
                     ${this.generateSampleSection(data.Sample)}
                     ${this.generateBufferSection(data.Buffer)}
                     ${this.generateNMRTubeSection(data['NMR Tube'])}
-                    ${this.generatePositionSection(data['Sample Position'])}
                     ${this.generateLabReferenceSection(data['Laboratory Reference'])}
                     ${this.generateNotesSection(data.Notes)}
                     ${this.generateMetadataSection(data.Metadata)}
@@ -478,39 +483,27 @@ class NMRSampleManager {
     generateSampleSection(sample) {
         if (!sample) return '';
         
-        let html = '<div class="detail-section"><h4>Sample</h4><div class="detail-grid">';
-        
-        if (sample.Label) {
-            html += `<div class="detail-item">
-                <span class="detail-label">Label:</span>
-                <span class="detail-value">${this.escapeHtml(sample.Label)}</span>
-            </div>`;
-        }
-        
-        html += '</div>';
+        let html = '<div class="detail-section"><h4>Sample</h4>';
         
         if (sample.Components && sample.Components.length > 0) {
-            html += '<h5 style="margin: 1rem 0 0.5rem 0; color: #6c757d;">Components</h5>';
-            html += '<div class="component-list">';
+            html += '<ul>';
             sample.Components.forEach(component => {
-                html += `<div class="component-item">
-                    <div class="detail-grid">
-                        ${component.Name ? `<div class="detail-item">
-                            <span class="detail-label">Name:</span>
-                            <span class="detail-value">${this.escapeHtml(component.Name)}</span>
-                        </div>` : ''}
-                        ${component['Isotopic labelling'] ? `<div class="detail-item">
-                            <span class="detail-label">Labelling:</span>
-                            <span class="detail-value">${this.escapeHtml(component['Isotopic labelling'])}</span>
-                        </div>` : ''}
-                        ${component.Concentration ? `<div class="detail-item">
-                            <span class="detail-label">Concentration:</span>
-                            <span class="detail-value">${component.Concentration.value || 0} ${component.Concentration.unit || ''}</span>
-                        </div>` : ''}
-                    </div>
-                </div>`;
+                let componentText = '';
+                if (component.Name) {
+                    componentText += this.escapeHtml(component.Name);
+                }
+                if (component.Concentration !== undefined) {
+                    const concentration = `${component.Concentration || 0} ${component.Unit || ''}`;
+                    componentText += componentText ? ` (${concentration})` : concentration;
+                }
+                if (component['Isotopic labelling']) {
+                    componentText += ` - ${this.escapeHtml(component['Isotopic labelling'])}`;
+                }
+                if (componentText) {
+                    html += `<li>${componentText}</li>`;
+                }
             });
-            html += '</div>';
+            html += '</ul>';
         }
         
         return html + '</div>';
@@ -539,22 +532,21 @@ class NMRSampleManager {
         
         if (buffer.Components && buffer.Components.length > 0) {
             html += '<h5 style="margin: 1rem 0 0.5rem 0; color: #6c757d;">Components</h5>';
-            html += '<div class="component-list">';
+            html += '<ul>';
             buffer.Components.forEach(component => {
-                html += `<div class="component-item">
-                    <div class="detail-grid">
-                        ${component.name ? `<div class="detail-item">
-                            <span class="detail-label">Name:</span>
-                            <span class="detail-value">${this.escapeHtml(component.name)}</span>
-                        </div>` : ''}
-                        ${component.concentration ? `<div class="detail-item">
-                            <span class="detail-label">Concentration:</span>
-                            <span class="detail-value">${component.concentration.value || 0} ${component.concentration.unit || ''}</span>
-                        </div>` : ''}
-                    </div>
-                </div>`;
+                let componentText = '';
+                if (component.name) {
+                    componentText += this.escapeHtml(component.name);
+                }
+                if (component.Concentration !== undefined) {
+                    const concentration = `${component.Concentration || 0} ${component.Unit || ''}`;
+                    componentText += componentText ? ` (${concentration})` : concentration;
+                }
+                if (componentText) {
+                    html += `<li>${componentText}</li>`;
+                }
             });
-            html += '</div>';
+            html += '</ul>';
         }
         
         return html + '</div>';
@@ -579,30 +571,23 @@ class NMRSampleManager {
             </div>`;
         }
         
+        if (tube['SampleJet Rack Position']) {
+            html += `<div class="detail-item">
+                <span class="detail-label">Rack Position:</span>
+                <span class="detail-value">${this.escapeHtml(tube['SampleJet Rack Position'])}</span>
+            </div>`;
+        }
+        
+        if (tube['SampleJet Rack ID']) {
+            html += `<div class="detail-item">
+                <span class="detail-label">Rack ID:</span>
+                <span class="detail-value">${this.escapeHtml(tube['SampleJet Rack ID'])}</span>
+            </div>`;
+        }
+        
         return html + '</div></div>';
     }
 
-    generatePositionSection(position) {
-        if (!position) return '';
-        
-        let html = '<div class="detail-section"><h4>Sample Position</h4><div class="detail-grid">';
-        
-        if (position['Rack Position']) {
-            html += `<div class="detail-item">
-                <span class="detail-label">Position:</span>
-                <span class="detail-value">${this.escapeHtml(position['Rack Position'])}</span>
-            </div>`;
-        }
-        
-        if (position['Rack ID']) {
-            html += `<div class="detail-item">
-                <span class="detail-label">Rack ID:</span>
-                <span class="detail-value">${this.escapeHtml(position['Rack ID'])}</span>
-            </div>`;
-        }
-        
-        return html + '</div></div>';
-    }
 
     generateLabReferenceSection(labRef) {
         if (!labRef) return '';
@@ -666,12 +651,6 @@ class NMRSampleManager {
             </div>`;
         }
         
-        if (metadata.schema_version) {
-            html += `<div class="detail-item">
-                <span class="detail-label">Schema:</span>
-                <span class="detail-value">v${metadata.schema_version}</span>
-            </div>`;
-        }
         
         return html + '</div></div>';
     }

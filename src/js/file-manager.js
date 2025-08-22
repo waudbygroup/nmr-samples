@@ -66,7 +66,7 @@ class FileManager {
             }
 
             if (this.onSamplesChanged) {
-                this.onSamplesChanged(Array.from(this.sampleFiles.keys()));
+                this.onSamplesChanged(this.getSampleFilenames());
             }
         } catch (error) {
             console.error('Error scanning for samples:', error);
@@ -127,7 +127,7 @@ class FileManager {
 
             // Only trigger callback if not explicitly skipped
             if (!skipCallback && this.onSamplesChanged) {
-                this.onSamplesChanged(Array.from(this.sampleFiles.keys()));
+                this.onSamplesChanged(this.getSampleFilenames());
             }
 
         } catch (error) {
@@ -227,6 +227,6 @@ class FileManager {
      * Get list of sample filenames
      */
     getSampleFilenames() {
-        return Array.from(this.sampleFiles.keys()).sort().reverse(); // Latest first
+        return Array.from(this.sampleFiles.keys()).sort(); // Alphabetical sort
     }
 }

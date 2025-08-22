@@ -67,12 +67,10 @@ class SchemaHandler {
                 Solvent: '10% D2O'
             },
             'NMR Tube': {
-                Diameter: '5mm',
-                Type: 'regular'
-            },
-            'Sample Position': {
-                'Rack Position': '',
-                'Rack ID': ''
+                Diameter: '5 mm',
+                Type: 'regular',
+                'SampleJet Rack Position': '',
+                'SampleJet Rack ID': ''
             },
             'Laboratory Reference': {
                 'Labbook Entry': '',
@@ -115,12 +113,10 @@ class SchemaHandler {
                             "ui:placeholder": "Describe custom labelling scheme"
                         },
                         Concentration: {
-                            value: {
-                                "ui:placeholder": "Numeric value"
-                            },
-                            unit: {
-                                "ui:widget": "select"
-                            }
+                            "ui:placeholder": "Numeric value"
+                        },
+                        Unit: {
+                            "ui:widget": "select"
                         }
                     }
                 }
@@ -134,13 +130,11 @@ class SchemaHandler {
                         name: {
                             "ui:placeholder": "e.g., Tris-HCl, NaCl, EDTA"
                         },
-                        concentration: {
-                            value: {
-                                "ui:placeholder": "Numeric value"
-                            },
-                            unit: {
-                                "ui:widget": "select"
-                            }
+                        Concentration: {
+                            "ui:placeholder": "Numeric value"
+                        },
+                        Unit: {
+                            "ui:widget": "select"
                         }
                     }
                 },
@@ -161,13 +155,11 @@ class SchemaHandler {
                 },
                 Type: {
                     "ui:widget": "select"
-                }
-            },
-            'Sample Position': {
-                'Rack Position': {
+                },
+                'SampleJet Rack Position': {
                     "ui:placeholder": "e.g., A3, G11"
                 },
-                'Rack ID': {
+                'SampleJet Rack ID': {
                     "ui:placeholder": "e.g., Rack-001"
                 }
             },

@@ -12,7 +12,7 @@
             "items": {
                 "type": "string"
             },
-            "minItems": 1
+            "minItems": 0
         },
         "Sample": {
             "type": "object",
@@ -74,7 +74,7 @@
                             }
                         }
                     },
-                    "minItems": 1
+                    "minItems": 0
                 }
             }
         },
@@ -158,16 +158,16 @@
                         "coaxial"
                     ],
                     "description": "Type of NMR tube"
+                },
+                "SampleJet Rack Position": {
+                    "type": "string",
+                    "pattern": "^[A-H][1-9][0-9]?$",
+                    "description": "Position in SampleJet rack (e.g., A3, G11)"
+                },
+                "SampleJet Rack ID": {
+                    "type": "string",
+                    "description": "Identifier for the specific rack"
                 }
-            },
-            "SampleJet Rack Position": {
-                "type": "string",
-                "pattern": "^[A-H][1-9][0-9]?$",
-                "description": "Position in SampleJet rack (e.g., A3, G11)"
-            },
-            "SampleJet Rack ID": {
-                "type": "string",
-                "description": "Identifier for the specific rack"
             }
         },
         "Laboratory Reference": {
