@@ -11,6 +11,7 @@ class NMRSampleManager {
         this.selectedSampleFile = null;
         this.formComponent = null;
         this.currentReactRoot = null;
+        this.currentOperation = null; // Track ongoing operations: 'creating-new', 'duplicating', null
 
         // Bind event handlers
         this.fileManager.onDirectoryChanged = this.handleDirectoryChanged.bind(this);
@@ -112,12 +113,22 @@ class NMRSampleManager {
     showNavigationPrompt(relativePath, actionParam = null) {
         const welcomeMessage = document.querySelector('.welcome-message');
         if (welcomeMessage) {
-            const actionText = actionParam === 'eject' ? ' and eject the most recent sample' : '';
+            let actionText = '';
+            let buttonText = 'Grant Access & Navigate';
+            
+            if (actionParam === 'eject') {
+                actionText = ' and eject the most recent sample';
+                buttonText = 'Grant Access & Navigate + Eject';
+            } else if (actionParam === 'inject') {
+                actionText = ' and prepare for sample injection';
+                buttonText = 'Grant Access & Navigate + Inject';
+            }
+            
             welcomeMessage.innerHTML = `
                 <h3>Navigate to Folder</h3>
                 <p>Click the button below to navigate to: <strong>${this.escapeHtml(relativePath)}</strong>${actionText}</p>
                 <button id="navigate-to-url-folder" class="btn btn-primary" style="margin-top: 1rem;">
-                    Grant Access & Navigate${actionParam === 'eject' ? ' + Eject' : ''}
+                    ${buttonText}
                 </button>
             `;
             
@@ -148,6 +159,8 @@ class NMRSampleManager {
         try {
             if (actionParam === 'eject') {
                 await this.ejectMostRecentSample();
+            } else if (actionParam === 'inject') {
+                await this.handleInjectAction();
             }
             // Add other actions here in the future
         } catch (error) {
@@ -180,6 +193,89 @@ class NMRSampleManager {
         await this.fileManager.scanForSamples();
         
         this.showSuccess(`Successfully ejected most recent sample: ${mostRecentSample}`);
+    }
+
+    async handleInjectAction() {
+        const sampleFiles = this.fileManager.getSampleFilenames();
+        
+        if (sampleFiles.length === 0) {
+            // No samples exist, start creating a new sample
+            console.log('No samples found, starting new sample creation');
+            this.createNewSample();
+            this.showSuccess('Started creating new sample for injection');
+        } else {
+            // Samples exist, prevent auto-selection and prompt user for choice
+            this.currentOperation = 'inject-prompt';
+            this.showInjectPrompt(sampleFiles);
+        }
+    }
+
+    showInjectPrompt(sampleFiles) {
+        const welcomeMessage = document.querySelector('.welcome-message');
+        if (welcomeMessage) {
+            const sampleCount = sampleFiles.length;
+            const mostRecentSample = sampleFiles[sampleFiles.length - 1];
+            
+            welcomeMessage.innerHTML = `
+                <h3>Sample Injection</h3>
+                <p>Found ${sampleCount} existing sample${sampleCount > 1 ? 's' : ''} in this folder.</p>
+                <p>Most recent: <strong>${this.escapeHtml(mostRecentSample)}</strong></p>
+                <p>What would you like to do?</p>
+                <div style="margin-top: 1rem; display: flex; gap: 0.75rem;">
+                    <button id="inject-new-sample" class="btn btn-success">
+                        Create New Sample
+                    </button>
+                    <button id="inject-duplicate-sample" class="btn btn-info">
+                        Duplicate Most Recent
+                    </button>
+                </div>
+                <p style="margin-top: 1rem; font-size: 0.9rem; color: #6c757d;">
+                    <em>Tip: You can also select any sample from the list on the left and use the "Duplicate" button.</em>
+                </p>
+            `;
+            
+            // Add click handlers for the action buttons
+            document.getElementById('inject-new-sample').addEventListener('click', () => {
+                console.log('User chose to create new sample for injection');
+                this.currentOperation = null; // Clear inject prompt operation
+                this.createNewSample(); // This will handle operation tracking internally
+                welcomeMessage.innerHTML = '<p class="form-placeholder">Creating new sample...</p>';
+            });
+            
+            document.getElementById('inject-duplicate-sample').addEventListener('click', () => {
+                console.log('User chose to duplicate most recent sample for injection');
+                // Set the selected file and duplicate directly
+                this.currentOperation = null; // Clear inject prompt operation
+                this.selectedSampleFile = mostRecentSample;
+                this.duplicateSelectedSample();
+                welcomeMessage.innerHTML = '<p class="form-placeholder">Duplicating sample for injection...</p>';
+            });
+        }
+    }
+
+    async ejectAllPreviousSamples() {
+        const sampleFiles = this.fileManager.getSampleFilenames();
+        let ejectedCount = 0;
+        
+        for (const sampleFile of sampleFiles) {
+            try {
+                const status = await this.fileManager.getSampleStatus(sampleFile);
+                if (status !== 'ejected') {
+                    console.log(`Auto-ejecting previous sample: ${sampleFile}`);
+                    await this.fileManager.ejectSample(sampleFile);
+                    ejectedCount++;
+                }
+            } catch (error) {
+                console.error(`Error auto-ejecting sample ${sampleFile}:`, error);
+            }
+        }
+        
+        if (ejectedCount > 0) {
+            console.log(`Auto-ejected ${ejectedCount} previous sample${ejectedCount > 1 ? 's' : ''}`);
+            // Refresh the sample list to show updated statuses
+            await this.fileManager.scanForSamples();
+            this.showSuccess(`Auto-ejected ${ejectedCount} previous sample${ejectedCount > 1 ? 's' : ''} before creating new sample`);
+        }
     }
 
     setupEventListeners() {
@@ -297,8 +393,8 @@ class NMRSampleManager {
                 selectedRadio.closest('.sample-item').classList.add('selected');
                 this.updateButtonStates(true);
             }
-        } else {
-            // No previous selection, automatically select the most recent sample
+        } else if (!this.currentOperation) {
+            // No previous selection and no ongoing operation, automatically select the most recent sample
             const mostRecentSample = sampleFilenames[sampleFilenames.length - 1];
             if (mostRecentSample) {
                 console.log('Auto-selecting most recent sample:', mostRecentSample);
@@ -306,6 +402,9 @@ class NMRSampleManager {
             } else {
                 this.updateButtonStates(false);
             }
+        } else {
+            // Auto-selection is skipped (e.g., for inject prompt)
+            this.updateButtonStates(false);
         }
     }
 
@@ -440,11 +539,19 @@ class NMRSampleManager {
     async createNewSample() {
         try {
             console.log('Creating new sample...');
+            // Set operation to prevent auto-selection during the entire process
+            this.currentOperation = 'creating-new';
+            this.selectedSampleFile = null;
+            
+            // Auto-eject all previous samples before creating new one
+            await this.ejectAllPreviousSamples();
+            
             const defaultData = this.schemaHandler.createDefaultData();
             console.log('Default data:', defaultData);
             this.currentSample = defaultData;
-            this.selectedSampleFile = null;
             this.renderForm(defaultData, true);
+            
+            // Don't clear operation flag immediately - let it be cleared when user saves or when another explicit action occurs
         } catch (error) {
             console.error('Error creating new sample:', error);
             this.showError('Failed to create new sample: ' + error.message);
@@ -455,6 +562,9 @@ class NMRSampleManager {
         if (!this.selectedSampleFile) return;
 
         try {
+            // Auto-eject all previous samples before creating duplicate
+            await this.ejectAllPreviousSamples();
+            
             const newLabel = prompt('Enter label for duplicated sample:', 'Duplicate');
             if (!newLabel) return;
 
@@ -593,6 +703,9 @@ class NMRSampleManager {
 
             // Save the sample
             await this.fileManager.writeSample(filename, processedData);
+            
+            // Clear any ongoing operation since save is complete
+            this.currentOperation = null;
             
             this.showSuccess(`Sample saved successfully: ${filename}`);
             
