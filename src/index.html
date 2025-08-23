@@ -135,6 +135,7 @@
                 "NMR Tube": {
                     "type": "object",
                     "properties": {
+                        "Sample Volume": {"type": "number", "minimum": 0, "description": "Sample volume in microliters (µL)"},
                         "Diameter": {"enum": ["1.7 mm", "3 mm", "5 mm"], "type": "string", "description": "NMR tube diameter"},
                         "Type": {"type": "string", "enum": ["regular", "shigemi", "shaped", "coaxial"], "description": "Type of NMR tube"},
                         "SampleJet Rack Position": {"type": "string", "pattern": "^([A-H][1-9][0-9]?|)$", "description": "Position in SampleJet rack (e.g., A3, G11)"},

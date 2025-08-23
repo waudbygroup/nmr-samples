@@ -188,6 +188,11 @@
                     ],
                     "description": "Type of NMR tube"
                 },
+                "Sample Volume": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Sample volume in microliters (µL)"
+                },
                 "SampleJet Rack Position": {
                     "type": "string",
                     "pattern": "^([A-H][1-9][0-9]?|)$",

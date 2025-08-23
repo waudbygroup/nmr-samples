@@ -67,6 +67,7 @@ class SchemaHandler {
                 Solvent: '10% D2O'
             },
             'NMR Tube': {
+                'Sample Volume': null,
                 Diameter: '5 mm',
                 Type: 'regular',
                 'SampleJet Rack Position': '',
@@ -159,6 +160,9 @@ class SchemaHandler {
                 }
             },
             'NMR Tube': {
+                'Sample Volume': {
+                    "ui:placeholder": "e.g., 600"
+                },
                 Diameter: {
                     "ui:widget": "select"
                 },
