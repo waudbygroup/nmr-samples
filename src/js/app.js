@@ -52,6 +52,7 @@ class NMRSampleManager {
     async handleURLParameters() {
         const urlParams = new URLSearchParams(window.location.search);
         const folderParam = urlParams.get('folder');
+        const actionParam = urlParams.get('action');
         
         if (folderParam) {
             if (this.fileManager.rootDirectoryHandle) {
@@ -83,13 +84,15 @@ class NMRSampleManager {
                         if (permissionStatus === 'granted') {
                             // We have permissions, try automatic navigation
                             await this.fileManager.navigateToSubfolder(relativePath);
+                            // Handle actions after successful navigation
+                            await this.handleURLAction(actionParam);
                         } else {
                             // Need user interaction for permissions
-                            this.showNavigationPrompt(relativePath);
+                            this.showNavigationPrompt(relativePath, actionParam);
                         }
                     } catch (error) {
                         console.error('Error checking permissions for URL navigation:', error);
-                        this.showNavigationPrompt(relativePath);
+                        this.showNavigationPrompt(relativePath, actionParam);
                     }
                 }
             } else {
@@ -106,14 +109,15 @@ class NMRSampleManager {
         }
     }
 
-    showNavigationPrompt(relativePath) {
+    showNavigationPrompt(relativePath, actionParam = null) {
         const welcomeMessage = document.querySelector('.welcome-message');
         if (welcomeMessage) {
+            const actionText = actionParam === 'eject' ? ' and eject the most recent sample' : '';
             welcomeMessage.innerHTML = `
                 <h3>Navigate to Folder</h3>
-                <p>Click the button below to navigate to: <strong>${this.escapeHtml(relativePath)}</strong></p>
+                <p>Click the button below to navigate to: <strong>${this.escapeHtml(relativePath)}</strong>${actionText}</p>
                 <button id="navigate-to-url-folder" class="btn btn-primary" style="margin-top: 1rem;">
-                    Grant Access & Navigate
+                    Grant Access & Navigate${actionParam === 'eject' ? ' + Eject' : ''}
                 </button>
             `;
             
@@ -121,6 +125,8 @@ class NMRSampleManager {
             document.getElementById('navigate-to-url-folder').addEventListener('click', async () => {
                 try {
                     await this.fileManager.navigateToSubfolder(relativePath);
+                    // Handle actions after successful navigation
+                    await this.handleURLAction(actionParam);
                     // Clear the welcome message after successful navigation
                     welcomeMessage.innerHTML = '<p class="form-placeholder">Select a sample or create a new one to see the form</p>';
                 } catch (error) {
@@ -134,6 +140,46 @@ class NMRSampleManager {
                 }
             });
         }
+    }
+
+    async handleURLAction(actionParam) {
+        if (!actionParam) return;
+
+        try {
+            if (actionParam === 'eject') {
+                await this.ejectMostRecentSample();
+            }
+            // Add other actions here in the future
+        } catch (error) {
+            console.error(`Error handling URL action '${actionParam}':`, error);
+            this.showError(`Failed to ${actionParam}: ${error.message}`);
+        }
+    }
+
+    async ejectMostRecentSample() {
+        const sampleFiles = this.fileManager.getSampleFilenames();
+        
+        if (sampleFiles.length === 0) {
+            throw new Error('No samples found in the current directory');
+        }
+
+        // Get the most recent sample (last in the alphabetically sorted list)
+        const mostRecentSample = sampleFiles[sampleFiles.length - 1];
+        
+        // Check if it's already ejected
+        const status = await this.fileManager.getSampleStatus(mostRecentSample);
+        if (status === 'ejected') {
+            throw new Error(`Most recent sample (${mostRecentSample}) is already ejected`);
+        }
+
+        // Eject the sample
+        console.log(`Ejecting most recent sample: ${mostRecentSample}`);
+        await this.fileManager.ejectSample(mostRecentSample);
+        
+        // Refresh the sample list to update status
+        await this.fileManager.scanForSamples();
+        
+        this.showSuccess(`Successfully ejected most recent sample: ${mostRecentSample}`);
     }
 
     setupEventListeners() {
@@ -252,7 +298,14 @@ class NMRSampleManager {
                 this.updateButtonStates(true);
             }
         } else {
-            this.updateButtonStates(false);
+            // No previous selection, automatically select the most recent sample
+            const mostRecentSample = sampleFilenames[sampleFilenames.length - 1];
+            if (mostRecentSample) {
+                console.log('Auto-selecting most recent sample:', mostRecentSample);
+                await this.selectSample(mostRecentSample);
+            } else {
+                this.updateButtonStates(false);
+            }
         }
     }
 
