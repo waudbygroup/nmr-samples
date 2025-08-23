@@ -279,6 +279,15 @@ body {
     background-color: #0056b3;
 }
 
+.btn-info {
+    background-color: #007bff; /* Match primary button */
+    color: white;
+}
+
+.btn-info:hover:not(:disabled) {
+    background-color: #0056b3; /* Match primary hover */
+}
+
 .btn-success {
     background-color: #28a745;
     color: white;
@@ -451,4 +460,86 @@ body {
 .sample-list::-webkit-scrollbar-thumb:hover,
 .content-body::-webkit-scrollbar-thumb:hover {
     background: #a8a8a8;
+}
+
+/* Timeline Section */
+.timeline-section {
+    margin-top: 0.5rem;
+}
+
+.btn-timeline {
+    background-color: #007bff; /* Match primary button blue */
+    color: white;
+    width: 100%;
+    border: none;
+    padding: 0.75rem;
+    font-weight: 500;
+}
+
+.btn-timeline:hover:not(:disabled) {
+    background-color: #0056b3; /* Match primary hover */
+}
+
+.btn-timeline:focus,
+.btn-timeline:active {
+    color: white !important; /* Force text white on focus/active */
+    background-color: #0056b3 !important;
+    outline: none;
+}
+
+.btn-timeline:disabled {
+    background-color: #6c757d;
+    opacity: 0.6;
+}
+
+/* Timeline View */
+.timeline-view {
+    padding: 1rem;
+}
+
+.timeline-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+}
+
+.timeline-table th,
+.timeline-table td {
+    padding: 0.5rem;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+.timeline-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.timeline-group-0 {
+    background-color: #e3f2fd; /* Light blue matching primary button theme */
+}
+
+.timeline-group-1 {
+    background-color: #fff3e0; /* Light orange for good contrast */
+}
+
+.timeline-group-0:hover {
+    background-color: #bbdefb; /* Slightly darker blue on hover */
+}
+
+.timeline-group-1:hover {
+    background-color: #ffe0b2; /* Slightly darker orange on hover */
+}
+
+.timeline-sample-created {
+    font-weight: bold;
+}
+
+.timeline-footer {
+    margin-top: 1rem;
+    font-style: italic;
+    color: #6c757d;
+    text-align: center;
 }

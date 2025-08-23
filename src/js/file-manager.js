@@ -445,4 +445,169 @@ class FileManager {
             return false;
         }
     }
+
+    /**
+     * Scan current directory for numbered experiment directories
+     */
+    async scanExperimentDirectories() {
+        if (!this.currentDirectoryHandle) return [];
+
+        const experimentDirs = [];
+        
+        try {
+            for await (const [name, handle] of this.currentDirectoryHandle.entries()) {
+                if (handle.kind === 'directory' && /^\d+$/.test(name)) {
+                    experimentDirs.push({
+                        number: parseInt(name, 10),
+                        name: name,
+                        handle: handle
+                    });
+                }
+            }
+
+            // Sort by experiment number
+            experimentDirs.sort((a, b) => a.number - b.number);
+            return experimentDirs;
+        } catch (error) {
+            console.error('Error scanning experiment directories:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Read experiment data from a numbered directory
+     */
+    async readExperimentData(expHandle) {
+        try {
+            let startTime = null;
+            let pulseProgram = null;
+            let title = null;
+
+            // Read audita.txt for start time
+            try {
+                const auditaHandle = await expHandle.getFileHandle('audita.txt');
+                const auditaFile = await auditaHandle.getFile();
+                const auditaText = await auditaFile.text();
+                
+                const timeMatch = auditaText.match(/started at (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} [+-]\d{4})/);
+                if (timeMatch) {
+                    startTime = timeMatch[1];
+                }
+            } catch (error) {
+                // audita.txt missing - skip this experiment
+                return null;
+            }
+
+            // Read acqus for pulse program
+            try {
+                const acqusHandle = await expHandle.getFileHandle('acqus');
+                const acqusFile = await acqusHandle.getFile();
+                const acqusText = await acqusFile.text();
+                
+                const pulseMatch = acqusText.match(/##\$PULPROG= <(.+?)>/);
+                if (pulseMatch) {
+                    pulseProgram = pulseMatch[1];
+                }
+            } catch (error) {
+                // acqus missing - skip this experiment
+                return null;
+            }
+
+            // Read pdata/1/title for experiment title (optional)
+            try {
+                const pdataHandle = await expHandle.getDirectoryHandle('pdata');
+                const pdata1Handle = await pdataHandle.getDirectoryHandle('1');
+                const titleHandle = await pdata1Handle.getFileHandle('title');
+                const titleFile = await titleHandle.getFile();
+                const titleText = await titleFile.text();
+                
+                const firstLine = titleText.split('\n')[0].trim();
+                if (firstLine) {
+                    title = firstLine;
+                }
+            } catch (error) {
+                // title file missing or empty - that's okay
+            }
+
+            return {
+                startTime,
+                pulseProgram,
+                title
+            };
+        } catch (error) {
+            console.error(`Error reading experiment data:`, error);
+            return null;
+        }
+    }
+
+    /**
+     * Generate timeline data combining samples and experiments
+     */
+    async generateTimelineData() {
+        const timelineEvents = [];
+
+        // Add sample events
+        for (const filename of this.getSampleFilenames()) {
+            try {
+                const sampleData = await this.readSample(filename);
+                const metadata = sampleData.Metadata || {};
+                const sampleLabel = sampleData.Sample?.Label || 'Unknown';
+
+                // Sample creation event
+                if (metadata.created_timestamp) {
+                    timelineEvents.push({
+                        timestamp: metadata.created_timestamp,
+                        type: 'Sample',
+                        event: 'Created',
+                        details: sampleLabel,
+                        rawTimestamp: new Date(metadata.created_timestamp)
+                    });
+                }
+
+                // Sample ejection event
+                if (metadata.ejected_timestamp) {
+                    timelineEvents.push({
+                        timestamp: metadata.ejected_timestamp,
+                        type: 'Sample',
+                        event: 'Ejected',
+                        details: sampleLabel,
+                        rawTimestamp: new Date(metadata.ejected_timestamp)
+                    });
+                }
+            } catch (error) {
+                console.error(`Error reading sample ${filename} for timeline:`, error);
+            }
+        }
+
+        // Add experiment events
+        const experimentDirs = await this.scanExperimentDirectories();
+        for (const expDir of experimentDirs) {
+            try {
+                const expData = await this.readExperimentData(expDir.handle);
+                if (expData && expData.startTime && expData.pulseProgram) {
+                    // Parse the timestamp format: "2024-04-24 14:04:59.108 +0100"
+                    const timestampMatch = expData.startTime.match(/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\.\d{3} [+-]\d{4}/);
+                    if (timestampMatch) {
+                        const isoTimestamp = timestampMatch[1].replace(' ', 'T') + 'Z';
+                        
+                        timelineEvents.push({
+                            timestamp: expData.startTime,
+                            type: 'Experiment',
+                            event: expData.pulseProgram,
+                            details: expData.title || `Experiment ${expDir.number}`,
+                            experimentNumber: expDir.number,
+                            rawTimestamp: new Date(isoTimestamp)
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error(`Error reading experiment ${expDir.number} for timeline:`, error);
+            }
+        }
+
+        // Sort by timestamp (oldest first)
+        timelineEvents.sort((a, b) => a.rawTimestamp - b.rawTimestamp);
+
+        return timelineEvents;
+    }
 }

@@ -289,6 +289,11 @@ class NMRSampleManager {
             this.selectSubfolder();
         });
 
+        // Timeline button
+        document.getElementById('show-timeline').addEventListener('click', () => {
+            this.showTimeline();
+        });
+
         // Sample management buttons
         document.getElementById('new-sample').addEventListener('click', () => {
             this.createNewSample();
@@ -358,6 +363,10 @@ class NMRSampleManager {
         // Extract just the final folder name from the full path
         const finalFolderName = directoryName ? directoryName.split('/').pop() : 'No folder selected';
         document.getElementById('current-folder').textContent = finalFolderName;
+        
+        // Enable timeline button when directory is selected
+        const timelineBtn = document.getElementById('show-timeline');
+        timelineBtn.disabled = !directoryName;
     }
 
     async handleSamplesChanged(sampleFilenames) {
@@ -977,6 +986,135 @@ class NMRSampleManager {
 
     showSuccess(message) {
         alert('Success: ' + message);
+    }
+
+    showInfo(message) {
+        alert('Info: ' + message);
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    /**
+     * Assign alternating color groups based on sample sessions
+     */
+    assignSampleGroupColors(timelineData) {
+        const result = [];
+        let currentColorIndex = 0;
+        let currentSample = null;
+        
+        timelineData.forEach((event) => {
+            if (event.type === 'Sample' && event.event === 'Created') {
+                // New sample session starts
+                currentSample = event.details;
+                currentColorIndex = currentColorIndex === 0 ? 1 : 0; // Alternate between 0 and 1
+            }
+            
+            // Assign current color to this event
+            result.push({
+                ...event,
+                colorGroup: currentColorIndex
+            });
+            
+            if (event.type === 'Sample' && event.event === 'Ejected' && event.details === currentSample) {
+                // Sample session ends
+                currentSample = null;
+            }
+        });
+        
+        return result;
+    }
+
+    /**
+     * Show timeline view
+     */
+    async showTimeline() {
+        try {
+            const timelineData = await this.fileManager.generateTimelineData();
+            this.renderTimeline(timelineData);
+            
+        } catch (error) {
+            console.error('Error showing timeline:', error);
+            this.showError('Failed to load timeline: ' + error.message);
+        }
+    }
+
+    /**
+     * Render timeline table
+     */
+    renderTimeline(timelineData) {
+        const contentArea = document.getElementById('sample-form');
+        
+        if (timelineData.length === 0) {
+            contentArea.innerHTML = `
+                <div class="timeline-view">
+                    <h3>Experiment Timeline</h3>
+                    <p>No timeline data found in this directory.</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Assign sample group colors
+        const timelineWithColors = this.assignSampleGroupColors(timelineData);
+
+        let tableRows = '';
+        timelineWithColors.forEach((event) => {
+            // Format date as "Mon 9 Oct 2023"
+            const date = event.rawTimestamp.toLocaleDateString('en-GB', {
+                weekday: 'short',
+                day: 'numeric', 
+                month: 'short',
+                year: 'numeric'
+            });
+            const time = event.rawTimestamp.toTimeString().split(' ')[0];
+            
+            // Use sample group color class and add bold for sample creation
+            let rowClass = `timeline-group-${event.colorGroup}`;
+            if (event.type === 'Sample' && event.event === 'Created') {
+                rowClass += ' timeline-sample-created';
+            }
+            
+            // Show experiment number for experiments, or just the type for samples
+            const typeDisplay = event.type === 'Experiment' ? event.experimentNumber : event.type;
+            
+            tableRows += `
+                <tr class="${rowClass}">
+                    <td>${date}</td>
+                    <td>${time}</td>
+                    <td>${typeDisplay}</td>
+                    <td>${this.escapeHtml(event.event)}</td>
+                    <td>${this.escapeHtml(event.details)}</td>
+                </tr>
+            `;
+        });
+
+        contentArea.innerHTML = `
+            <div class="timeline-view">
+                <h3>Experiment Timeline</h3>
+                <p>Showing ${timelineData.length} events from ${this.fileManager.getFullCurrentPath()}</p>
+                <table class="timeline-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Experiment</th>
+                            <th>Event / pulseprogram</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRows}
+                    </tbody>
+                </table>
+                <p class="timeline-footer">
+                    <em>Click on any sample in the list to return to normal view</em>
+                </p>
+            </div>
+        `;
     }
 }
 
