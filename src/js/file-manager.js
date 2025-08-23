@@ -184,6 +184,11 @@ class FileManager {
                 data.Metadata = {};
             }
             
+            // Don't update timestamp if sample is already ejected
+            if (data.Metadata.ejected_timestamp) {
+                return true; // Already ejected, do nothing
+            }
+            
             data.Metadata.ejected_timestamp = new Date().toISOString();
             // Skip callback here since we'll call scanForSamples manually
             await this.writeSample(filename, data, true);

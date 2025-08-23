@@ -251,12 +251,13 @@ body {
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.9rem !important;
+    font-size: 0.9rem;
     font-weight: 500;
     text-align: center;
     text-decoration: none;
     transition: all 0.15s ease;
     display: inline-block;
+    color: white;
 }
 
 .btn:disabled {
@@ -266,26 +267,18 @@ body {
 
 .btn-sm {
     padding: 0.375rem 0.75rem;
-    font-size: 1rem;
-    /* 0.8125rem */
+    font-size: 0.8rem;
 }
 
 .btn-primary {
-    background-color: #007bff;
+    background-color: #4a90a4;
+    /* Muted teal-blue */
     color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-    background-color: #0056b3;
-}
-
-.btn-info {
-    background-color: #007bff; /* Match primary button */
-    color: white;
-}
-
-.btn-info:hover:not(:disabled) {
-    background-color: #0056b3; /* Match primary hover */
+    background-color: #3a7a8a;
+    /* Darker muted teal */
 }
 
 .btn-success {
@@ -295,15 +288,6 @@ body {
 
 .btn-success:hover:not(:disabled) {
     background-color: #1e7e34;
-}
-
-.btn-info {
-    background-color: #17a2b8;
-    color: white;
-}
-
-.btn-info:hover:not(:disabled) {
-    background-color: #117a8b;
 }
 
 .btn-warning {
@@ -468,28 +452,67 @@ body {
 }
 
 .btn-timeline {
-    background-color: #007bff; /* Match primary button blue */
+    background-color: #28a745;
     color: white;
     width: 100%;
-    border: none;
     padding: 0.75rem;
     font-weight: 500;
 }
 
 .btn-timeline:hover:not(:disabled) {
-    background-color: #0056b3; /* Match primary hover */
+    background-color: #1e7e34;
+    color: white;
 }
 
-.btn-timeline:focus,
-.btn-timeline:active {
-    color: white !important; /* Force text white on focus/active */
-    background-color: #0056b3 !important;
+.btn-timeline:focus {
+    background-color: #1e7e34;
+    color: white !important;
     outline: none;
 }
 
-.btn-timeline:disabled {
-    background-color: #6c757d;
-    opacity: 0.6;
+/* Timeline View */
+.timeline-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+}
+
+.timeline-table th,
+.timeline-table td {
+    padding: 0.5rem;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+.timeline-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.timeline-group-0 {
+    background-color: #e3f2fd;
+    /* Light blue */
+}
+
+.timeline-group-1 {
+    background-color: #fff3e0;
+    /* Light orange */
+}
+
+.timeline-group-0:hover {
+    background-color: #bbdefb;
+    /* Slightly darker blue on hover */
+}
+
+.timeline-group-1:hover {
+    background-color: #ffe0b2;
+    /* Slightly darker orange on hover */
+}
+
+.timeline-sample-created {
+    font-weight: bold;
 }
 
 /* Timeline View */
@@ -518,19 +541,23 @@ body {
 }
 
 .timeline-group-0 {
-    background-color: #e3f2fd; /* Light blue matching primary button theme */
+    background-color: #e3f2fd;
+    /* Light blue */
 }
 
 .timeline-group-1 {
-    background-color: #fff3e0; /* Light orange for good contrast */
+    background-color: #fff3e0;
+    /* Light orange */
 }
 
 .timeline-group-0:hover {
-    background-color: #bbdefb; /* Slightly darker blue on hover */
+    background-color: #bbdefb;
+    /* Slightly darker blue on hover */
 }
 
 .timeline-group-1:hover {
-    background-color: #ffe0b2; /* Slightly darker orange on hover */
+    background-color: #ffe0b2;
+    /* Slightly darker orange on hover */
 }
 
 .timeline-sample-created {
