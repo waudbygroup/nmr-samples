@@ -1,5 +1,4 @@
 {
-    "$schema": "https://json-schema.org/draft-07/schema",
     "title": "NMR Sample Metadata",
     "description": "Schema for NMR sample metadata collection in TopSpin environments",
     "type": "object",
