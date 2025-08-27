@@ -61,7 +61,7 @@ jobs:
       - name: Create Offline Package
         run: |
           cd docs/download
-          zip -r nmr-sample-manager.zip * -x "*.zip"
+          zip -r nmr-samples.zip * -x "*.zip"
           
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3

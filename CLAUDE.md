@@ -45,7 +45,7 @@ A standalone web application for managing NMR sample metadata in TopSpin environ
 ## File Structure
 
 ```
-nmr-sample-manager/
+nmr-samples/
 ├── CLAUDE.md                    # This architecture document
 ├── src/
 │   ├── index.html              # Main web application (template with {{SCHEMA}})
@@ -70,7 +70,7 @@ nmr-sample-manager/
 │   └── download/
 │       ├── index.html          # Offline version (embedded schema)
 │       ├── css/ & js/          # All assets
-│       └── nmr-sample-manager.zip # Complete offline package
+│       └── nmr-samples.zip # Complete offline package
 ├── topspin-integration/
 │   ├── aij.py                  # Annotated inject command
 │   ├── aej.py                  # Annotated eject command
@@ -234,7 +234,7 @@ The project uses a GitHub Actions build system that:
 ### Build Targets
 - **Online Version** (`docs/index.html`): External schema loading for GitHub Pages
 - **Offline Version** (`docs/download/index.html`): Embedded schema for offline use
-- **Offline Package** (`docs/download/nmr-sample-manager.zip`): Complete downloadable package
+- **Offline Package** (`docs/download/nmr-samples.zip`): Complete downloadable package
 
 ### Browser Support
 - **Primary (Full Features)**: Chrome 86+, Edge 86+ (File System Access API)
@@ -294,7 +294,7 @@ The application is fully prepared for TopSpin integration:
 ### Current File Structure (IMPLEMENTED)
 
 ```
-nmr-sample-manager/
+nmr-samples/
 ├── CLAUDE.md                    # This architecture document
 ├── schemas/
 │   ├── v0.0.1.json             # JSON schema (active version)
