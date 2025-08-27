@@ -1118,7 +1118,5 @@ class NMRSampleManager {
     }
 }
 
-// Initialize the application when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    window.sampleManager = new NMRSampleManager();
-});
+// Application initialization is now controlled by index.html
+// to ensure schema is loaded before app starts

@@ -37,15 +37,20 @@ jobs:
           with open('docs/index.html', 'r') as f:
               content = f.read()
           
-          schema_loader = '''fetch("schemas/current.json").then(r => r.json()).then(schema => {
-              window.EMBEDDED_SCHEMA = schema;
-              if (typeof window.initializeApp === "function") {
-                  window.initializeApp();
+          schema_loader = '''(async function() {
+              try {
+                  const response = await fetch("schemas/current.json");
+                  const schema = await response.json();
+                  window.EMBEDDED_SCHEMA = schema;
+                  window.SCHEMA_LOADED = true;
+                  // Dispatch event to notify that schema is ready
+                  window.dispatchEvent(new CustomEvent('schemaReady'));
+              } catch (error) {
+                  console.error("Failed to load schema:", error);
+                  window.SCHEMA_LOADED = false;
+                  window.dispatchEvent(new CustomEvent('schemaError', { detail: error }));
               }
-          }).catch(error => {
-              console.error("Failed to load schema:", error);
-              alert("Failed to load schema. Please check your connection.");
-          });'''
+          })();'''
           
           content = content.replace('{{SCHEMA}}', schema_loader)
           
@@ -71,7 +76,7 @@ jobs:
               content = f.read()
           
           # Create embedded schema code  
-          schema_code = f'window.EMBEDDED_SCHEMA = {json.dumps(schema)}; if (typeof window.initializeApp === "function") {{ window.initializeApp(); }}'
+          schema_code = f'window.EMBEDDED_SCHEMA = {json.dumps(schema)}; window.SCHEMA_LOADED = true; window.dispatchEvent(new CustomEvent("schemaReady"));'
           
           # Replace placeholder
           content = content.replace('{{SCHEMA}}', schema_code)
