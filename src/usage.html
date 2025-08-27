@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,18 +11,21 @@
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             line-height: 1.6;
             color: #333;
             background: #f8f9fa;
         }
+
         .header {
             background: #007bff;
             color: white;
             padding: 1rem 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         .header-content {
             max-width: 1200px;
             margin: 0 auto;
@@ -30,13 +34,16 @@
             justify-content: space-between;
             align-items: center;
         }
+
         .header h1 {
             font-size: 1.5rem;
         }
+
         .nav {
             display: flex;
             gap: 20px;
         }
+
         .nav a {
             color: white;
             text-decoration: none;
@@ -44,12 +51,15 @@
             border-radius: 4px;
             transition: background 0.2s;
         }
+
         .nav a:hover {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
         }
+
         .nav a.active {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
         }
+
         .content {
             max-width: 800px;
             margin: 0 auto;
@@ -58,34 +68,42 @@
             margin-top: 20px;
             margin-bottom: 40px;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
+
         h1 {
             color: #333;
             border-bottom: 3px solid #007bff;
             padding-bottom: 10px;
             margin-bottom: 30px;
         }
+
         h2 {
             color: #555;
             margin-top: 40px;
             margin-bottom: 15px;
         }
+
         h3 {
             color: #666;
             margin-top: 25px;
             margin-bottom: 10px;
         }
+
         p {
             margin-bottom: 15px;
         }
-        ul, ol {
+
+        ul,
+        ol {
             margin: 15px 0;
             padding-left: 20px;
         }
+
         li {
             margin-bottom: 5px;
         }
+
         code {
             background: #f4f4f4;
             padding: 2px 6px;
@@ -93,11 +111,13 @@
             font-family: 'Monaco', 'Menlo', monospace;
             font-size: 0.9em;
         }
+
         strong {
             color: #333;
         }
     </style>
 </head>
+
 <body>
     <header class="header">
         <div class="header-content">
@@ -109,81 +129,118 @@
             </nav>
         </div>
     </header>
-    
+
     <div class="content">
-                    <h1>Usage Guide</h1>
-                    
-                    <h2>Getting Started</h2>
-                    <p>The NMR Sample Manager helps you track and manage sample metadata for your NMR experiments. Here's how to use it:</p>
-                    
-                    <h2>Setting Up Directories</h2>
-                    <ol>
-                        <li><strong>Set Root Directory:</strong> Click "Set" next to "Root:" and select your main NMR data folder</li>
-                        <li><strong>Browse to Experiment:</strong> Click "Browse" to navigate to a specific experiment folder</li>
-                        <li><strong>Ready to go:</strong> You can now create and manage samples in this folder</li>
-                    </ol>
-                    
-                    <h2>Managing Samples</h2>
-                    
-                    <h3>Creating a New Sample</h3>
-                    <ol>
-                        <li>Click the "New Sample" button</li>
-                        <li>Fill in the form with your sample information (all fields are optional)</li>
-                        <li>Click "Save" to store the sample metadata</li>
-                    </ol>
-                    
-                    <h3>Editing Existing Samples</h3>
-                    <ol>
-                        <li>Select a sample from the list</li>
-                        <li>Click "Edit" to modify the information</li>
-                        <li>Make your changes and click "Save"</li>
-                    </ol>
-                    
-                    <h3>Duplicating Samples</h3>
-                    <p>Perfect for titration series or similar experiments:</p>
-                    <ol>
-                        <li>Select an existing sample</li>
-                        <li>Click "Duplicate"</li>
-                        <li>Modify the details as needed</li>
-                        <li>Save the new sample</li>
-                    </ol>
-                    
-                    <h2>Sample Information Fields</h2>
-                    <p>The form includes sections for:</p>
-                    <ul>
-                        <li><strong>Users:</strong> People involved in the experiment</li>
-                        <li><strong>Sample:</strong> Molecule names, concentrations, isotopic labeling</li>
-                        <li><strong>Buffer:</strong> pH, buffer components, solvent information</li>
-                        <li><strong>NMR Tube:</strong> Tube type, diameter, sample volume</li>
-                        <li><strong>Sample Position:</strong> SampleJet rack positions</li>
-                        <li><strong>Laboratory Reference:</strong> Lab book entries, experiment IDs</li>
-                        <li><strong>Notes:</strong> Additional observations</li>
-                    </ul>
-                    <p>All fields are optional - use only what you need!</p>
-                    
-                    <h2>Timeline View</h2>
-                    <p>Click "Show timeline" to see a complete history of all samples in the current experiment, including when they were created, modified, and ejected.</p>
-                    
-                    <h2>Sample Ejection</h2>
-                    <p>When you're done with a sample, click "Eject" to timestamp when it was removed. This helps track which samples are currently active in the spectrometer.</p>
-                    
-                    <h2>File Storage</h2>
-                    <p>Sample data is stored as human-readable JSON files in your experiment directories. These files:</p>
-                    <ul>
-                        <li>Can be opened in any text editor</li>
-                        <li>Work well with version control systems like Git</li>
-                        <li>Include timestamps for creation, modification, and ejection</li>
-                        <li>Follow a consistent naming pattern: <code>timestamp_samplename.json</code></li>
-                    </ul>
-                    
-                    <h2>Tips</h2>
-                    <ul>
-                        <li>Use the duplicate feature for sample series with small variations</li>
-                        <li>The timeline view helps you see the complete experiment history</li>
-                        <li>All sample information is automatically timestamped</li>
-                        <li>You can edit or update samples anytime</li>
-                        <li>Use the Notes field for any additional observations</li>
-                    </ul>
+        <h1>Usage Guide</h1>
+
+        <h2>Core Concept</h2>
+        <p>The NMR Sample Manager creates simple metadata files in your dataset directories to record when samples are
+            injected and ejected. All other information is optional but can be recorded to help keep track of your
+            measurements.</p>
+
+        <p>Information can be captured about:</p>
+        <ul>
+            <li><strong>Users:</strong> People involved in the experiment</li>
+            <li><strong>Sample:</strong> Molecule names, concentrations, isotopic labeling</li>
+            <li><strong>Buffer:</strong> pH, buffer components, solvent information</li>
+            <li><strong>NMR Tube:</strong> Tube type, diameter, sample volume</li>
+            <li><strong>Sample Position:</strong> SampleJet rack positions</li>
+            <li><strong>Laboratory Reference:</strong> Lab book entries, experiment IDs</li>
+            <li><strong>Notes:</strong> Additional observations</li>
+        </ul>
+        <p>Remember: all fields are optional - use only what you need!</p>
+
+        <h2>Managing Samples</h2>
+
+        <h3>Creating a New Sample</h3>
+        <ol>
+            <li>Click the "New Sample" button</li>
+            <li>Fill in the form with your sample information (all fields are optional)</li>
+            <li>Click "Save" to store the sample metadata</li>
+        </ol>
+
+        <h3>Editing Existing Samples</h3>
+        <ol>
+            <li>Select a sample from the list</li>
+            <li>Click "Edit" to modify the information</li>
+            <li>Make your changes and click "Save"</li>
+        </ol>
+
+        <h3>Duplicating Samples</h3>
+        <p>Perfect for titration series or similar experiments:</p>
+        <ol>
+            <li>Select an existing sample</li>
+            <li>Click "Duplicate"</li>
+            <li>Modify the details as needed</li>
+            <li>Save the new sample</li>
+        </ol>
+
+
+        <h2>Timeline View</h2>
+        <p>Click "Show timeline" to see a complete history of all samples in the current experiment, including when they
+            were created, modified, and ejected.</p>
+
+        <h2>Sample Ejection</h2>
+        <p>When you're done with a sample, click "Eject" to timestamp when it was removed. This helps track which
+            samples are currently active in the spectrometer.</p>
+
+        <h2>File Storage</h2>
+        <p>Sample data is stored as human-readable JSON files in your experiment directories. These files:</p>
+        <ul>
+            <li>Can be opened in any text editor</li>
+            <li>Work well with version control systems like Git</li>
+            <li>Include timestamps for creation, modification, and ejection</li>
+            <li>Follow a consistent naming pattern: <code>timestamp_samplename.json</code></li>
+        </ul>
+
+        <h2>Tips</h2>
+        <ul>
+            <li>Use the duplicate feature for sample series with small variations</li>
+            <li>The timeline view helps you see the complete experiment history</li>
+            <li>All sample information is automatically timestamped</li>
+            <li>You can edit or update samples anytime</li>
+            <li>Use the Notes field for any additional observations</li>
+        </ul>
+
+        <h2>Controlling the App via URL Parameters</h2>
+        <p>The application can be controlled via URL parameters, which is useful for TopSpin integration scripts:</p>
+
+        <h3>Navigate to a specific folder</h3>
+        <p><code>https://waudbylab.org/nmr-samples/?folder=/path/to/experiment</code></p>
+        <p>This will automatically navigate to the specified experiment folder.</p>
+
+        <h3>Sample injection</h3>
+        <p><code>https://waudbylab.org/nmr-samples/?folder=/path/to/experiment&action=inject</code></p>
+        <p>This will navigate to the folder and open the sample creation form for a new injection.</p>
+
+        <h3>Automatic sample ejection</h3>
+        <p><code>https://waudbylab.org/nmr-samples/?folder=/path/to/experiment&action=eject</code></p>
+        <p>This will navigate to the folder and automatically eject the most recent active sample.</p>
+
+        <p>These URL parameters enable TopSpin integration scripts to automatically manage samples during your workflow.
+        </p>
+
+        <h2>JSON Schema</h2>
+        <p>The NMR Sample Manager uses a <strong>JSON Schema</strong> to define the structure and validation rules for sample metadata. A JSON Schema is like a blueprint that describes what information can be stored and how it should be formatted.</p>
+        
+        <p>For example, the schema defines:</p>
+        <ul>
+            <li>Which fields are available (Users, Sample, Buffer, etc.)</li>
+            <li>What type of data each field accepts (text, numbers, predefined options)</li>
+            <li>Validation rules (e.g., pH must be between 0 and 14)</li>
+            <li>Default values and descriptions for each field</li>
+        </ul>
+        
+        <p>The current schema version is available at: <a href="https://waudbylab.org/nmr-samples/schemas/current.json" target="_blank">current.json</a></p>
+        
+        <p>This schema-driven approach ensures:</p>
+        <ul>
+            <li><strong>Consistency:</strong> All sample files follow the same structure</li>
+            <li><strong>Validation:</strong> Data is checked for correctness before saving</li>
+            <li><strong>Evolution:</strong> The schema can be updated while maintaining compatibility with existing data</li>
+            <li><strong>Transparency:</strong> The data structure is clearly documented and machine-readable</li>
+        </ul>
     </div>
 </body>
+
 </html>
