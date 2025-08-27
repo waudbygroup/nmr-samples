@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usage Guide - NMR Sample Manager</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar navbar-default">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="index.html">NMR Sample Manager</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li><a href="index.html">App</a></li>
+                <li><a href="installation.html">Installation</a></li>
+                <li class="active"><a href="usage.html">Usage</a></li>
+            </ul>
+        </nav>
+        
+        <div class="page-header">
+            <h1>Usage Guide</h1>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-8">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">=€ Quick Start</h3>
+                    </div>
+                    <div class="panel-body">
+                        <ol>
+                            <li><strong>Set Root Directory:</strong> Click "Set" next to "Root:" and select your NMR data folder</li>
+                            <li><strong>Browse Experiments:</strong> Click "Browse" to navigate to specific experiment folders</li>
+                            <li><strong>Manage Samples:</strong> Use "New Sample", "Duplicate", "Edit", or "Eject" buttons</li>
+                            <li><strong>View Timeline:</strong> Click "Show timeline" to see complete experiment history</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">=Ë Sample Management</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>Creating Samples</h4>
+                                <ul>
+                                    <li><strong>New Sample:</strong> Create a fresh sample entry from scratch</li>
+                                    <li><strong>Duplicate:</strong> Copy an existing sample for variations (titrations, pH series)</li>
+                                </ul>
+                                
+                                <h4>Managing Samples</h4>
+                                <ul>
+                                    <li><strong>Edit:</strong> Modify sample information and metadata</li>
+                                    <li><strong>Eject:</strong> Mark sample as ejected with automatic timestamp</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Sample Information</h4>
+                                <ul>
+                                    <li><strong>Users:</strong> Track who prepared/measured the sample</li>
+                                    <li><strong>Sample:</strong> Protein/molecule details, concentrations, labelling</li>
+                                    <li><strong>Buffer:</strong> pH, components, chemical shift references</li>
+                                    <li><strong>NMR Tube:</strong> Tube type, volume, SampleJet positions</li>
+                                    <li><strong>Lab References:</strong> Notebook entries, experiment IDs</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">=Ê Timeline View</h3>
+                    </div>
+                    <div class="panel-body">
+                        <p>The timeline provides a complete view of your experiment history:</p>
+                        <ul>
+                            <li><strong>Color-coded sessions:</strong> Each sample gets a unique color</li>
+                            <li><strong>Injection/ejection events:</strong> Track sample lifecycle</li>
+                            <li><strong>Sample details:</strong> Quick access to sample metadata</li>
+                            <li><strong>Chronological ordering:</strong> See experiment progression over time</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">=¡ Tips</h3>
+                    </div>
+                    <div class="panel-body">
+                        <h4>Best Practices</h4>
+                        <ul>
+                            <li>Set a clear root directory structure</li>
+                            <li>Use descriptive sample labels</li>
+                            <li>Always fill in Users field</li>
+                            <li>Include buffer pH when relevant</li>
+                            <li>Record SampleJet positions</li>
+                        </ul>
+                        
+                        <h4>Keyboard Shortcuts</h4>
+                        <ul>
+                            <li><kbd>Ctrl</kbd>+<kbd>S</kbd>: Save sample</li>
+                            <li><kbd>Esc</kbd>: Cancel editing</li>
+                        </ul>
+                        
+                        <h4>File Management</h4>
+                        <ul>
+                            <li>Samples saved as JSON files</li>
+                            <li>Timestamped filenames</li>
+                            <li>Human-readable format</li>
+                            <li>Git-friendly storage</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="panel panel-warning">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">=' TopSpin Integration</h3>
+                    </div>
+                    <div class="panel-body">
+                        <p>The app supports URL parameters for TopSpin workflow integration:</p>
+                        <pre><code>index.html?folder=/path/to/experiment&action=inject</code></pre>
+                        
+                        <p><strong>Actions supported:</strong></p>
+                        <ul>
+                            <li><code>inject</code>: Launch with new sample form</li>
+                            <li><code>eject</code>: Automatically eject active sample</li>
+                        </ul>
+                        
+                        <p><small>Python integration scripts coming soon!</small></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">= Schema Information</h3>
+                    </div>
+                    <div class="panel-body">
+                        <p>The sample manager uses a JSON Schema to ensure data consistency:</p>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <h4>Required Fields</h4>
+                                <p><em>None!</em> All fields are optional to encourage adoption.</p>
+                            </div>
+                            <div class="col-md-3">
+                                <h4>Validation</h4>
+                                <ul>
+                                    <li>Real-time form validation</li>
+                                    <li>Type checking</li>
+                                    <li>Format constraints</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-3">
+                                <h4>Extensibility</h4>
+                                <ul>
+                                    <li>Schema versioning</li>
+                                    <li>Backward compatibility</li>
+                                    <li>Custom fields support</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-3">
+                                <h4>Integration Ready</h4>
+                                <ul>
+                                    <li>BMRB mapping ready</li>
+                                    <li>Export capabilities</li>
+                                    <li>API-friendly format</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

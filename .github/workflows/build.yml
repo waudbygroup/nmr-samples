@@ -1,0 +1,72 @@
+name: Build and Deploy NMR Sample Manager
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Setup directories
+        run: |
+          mkdir -p docs/download docs/css docs/js docs/schemas
+          
+      - name: Build Online Version
+        run: |
+          # Copy all source files
+          cp -r src/* docs/
+          
+          # Create external schema loader for online version
+          echo '// Online version - load schema from external file
+          (async function() {
+            try {
+              const response = await fetch("./schemas/current.json");
+              const schema = await response.json();
+              window.EMBEDDED_SCHEMA = schema;
+              if (typeof window.initializeApp === "function") {
+                window.initializeApp();
+              }
+            } catch (error) {
+              console.error("Failed to load schema:", error);
+              if (!window.EMBEDDED_SCHEMA) {
+                alert("Failed to load schema. Please check your connection.");
+              }
+            }
+          })();' > /tmp/external_loader.js
+          
+          # Replace placeholder in online version  
+          sed -i "s|{{SCHEMA}}|$(cat /tmp/external_loader.js)|" docs/index.html
+          
+      - name: Build Offline Version  
+        run: |
+          # Copy all source files to download directory
+          cp -r src/* docs/download/
+          
+          # Read and minify schema
+          SCHEMA=$(cat src/schemas/current.json | jq -c .)
+          
+          # Create embedded schema script
+          echo "window.EMBEDDED_SCHEMA = $SCHEMA;" > /tmp/embedded_schema.js
+          
+          # Replace placeholder in offline version
+          sed -i 's|{{SCHEMA}}|'"$(cat /tmp/embedded_schema.js)"'|' docs/download/index.html
+          
+      - name: Create Offline Package
+        run: |
+          cd docs/download
+          zip -r nmr-sample-manager.zip * -x "*.zip"
+          
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+          force_orphan: true

@@ -82,7 +82,10 @@
             "type": "object",
             "properties": {
                 "pH": {
-                    "type": ["number", "null"],
+                    "type": [
+                        "number",
+                        "null"
+                    ],
                     "minimum": 0,
                     "maximum": 14,
                     "description": "Buffer pH"
@@ -189,8 +192,10 @@
                     "description": "Type of NMR tube"
                 },
                 "Sample Volume": {
-                    "type": "number",
-                    "minimum": 0,
+                    "type": [
+                        "number",
+                        "null"
+                    ],
                     "description": "Sample volume in microliters (µL)"
                 },
                 "SampleJet Rack Position": {
