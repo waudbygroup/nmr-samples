@@ -45,7 +45,7 @@ jobs:
           }).catch(error => {
               console.error("Failed to load schema:", error);
               alert("Failed to load schema. Please check your connection.");
-          })'''
+          });'''
           
           content = content.replace('{{SCHEMA}}', schema_loader)
           
@@ -70,8 +70,8 @@ jobs:
           with open('docs/download/index.html', 'r') as f:
               content = f.read()
           
-          # Create embedded schema code
-          schema_code = f'Promise.resolve({json.dumps(schema)}).then(schema => {{ window.EMBEDDED_SCHEMA = schema; if (typeof window.initializeApp === "function") {{ window.initializeApp(); }} }})'
+          # Create embedded schema code  
+          schema_code = f'window.EMBEDDED_SCHEMA = {json.dumps(schema)}; if (typeof window.initializeApp === "function") {{ window.initializeApp(); }}'
           
           # Replace placeholder
           content = content.replace('{{SCHEMA}}', schema_code)
