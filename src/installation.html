@@ -1,128 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Installation - NMR Sample Manager</title>
     <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <style>
+        .content-area {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .content-area h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .content-area h2 {
+            color: #555;
+            margin-top: 30px;
+        }
+        .content-area p, .content-area li {
+            color: #666;
+        }
+        .content-area code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        .content-area ul, .content-area ol {
+            margin: 10px 0;
+        }
+    </style>
 </head>
-
 <body>
-    <div class="container">
-        <nav class="navbar navbar-default">
-            <div class="navbar-header">
-                <a class="navbar-brand" href="index.html">NMR Sample Manager</a>
-            </div>
-            <ul class="nav navbar-nav">
-                <li><a href="index.html">App</a></li>
-                <li class="active"><a href="installation.html">Installation</a></li>
-                <li><a href="usage.html">Usage</a></li>
-            </ul>
-        </nav>
-
-        <div class="page-header">
-            <h1>Installation Guide</h1>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6">
-                <div class="panel panel-success">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">
-                            < Online Use (Recommended)</h3>
-                    </div>
-                    <div class="panel-body">
-                        <p><strong>No installation required!</strong></p>
-                        <p>Simply visit this website in Chrome or Edge and start using the app immediately.</p>
-                        <ul>
-                            <li>Always up-to-date</li>
-                            <li>Automatic schema updates</li>
-                            <li>Full functionality</li>
-                        </ul>
-                        <a href="index.html" class="btn btn-success">Launch App</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="panel panel-info">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">=� Offline Use</h3>
-                    </div>
-                    <div class="panel-body">
-                        <p><strong>For computers without internet access:</strong></p>
-                        <ol>
-                            <li>Download <a href="download/nmr-samples.zip"
-                                    class="btn btn-xs btn-primary">nmr-samples.zip</a></li>
-                            <li>Extract the zip file to your computer</li>
-                            <li>Open <code>index.html</code> in Chrome or Edge</li>
-                            <li>Grant file system permissions when prompted</li>
-                        </ol>
-                        <p><small>Schema is embedded for offline use.</small></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-12">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">Browser Requirements</h3>
-                    </div>
-                    <div class="panel-body">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <h4> Recommended</h4>
-                                <ul>
-                                    <li>Chrome 86+</li>
-                                    <li>Edge 86+</li>
-                                </ul>
-                                <p><small>Full File System Access API support</small></p>
-                            </div>
-                            <div class="col-md-4">
-                                <h4>� Limited Support</h4>
-                                <ul>
-                                    <li>Firefox</li>
-                                    <li>Safari</li>
-                                </ul>
-                                <p><small>Manual file selection only</small></p>
-                            </div>
-                            <div class="col-md-4">
-                                <h4>L Not Supported</h4>
-                                <ul>
-                                    <li>Internet Explorer</li>
-                                    <li>Old browsers</li>
-                                </ul>
-                                <p><small>ES6+ required</small></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-12">
-                <div class="panel panel-warning">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">=' TopSpin Integration (Optional)</h3>
-                    </div>
-                    <div class="panel-body">
-                        <p>For seamless TopSpin workflow integration:</p>
-                        <ol>
-                            <li>Install Python scripts (coming soon)</li>
-                            <li>Use <code>aij</code> command instead of <code>ij</code></li>
-                            <li>Use <code>aej</code> command instead of <code>ej</code></li>
-                        </ol>
-                        <p><small>Integration scripts automatically launch the sample manager.</small></p>
-                    </div>
+    <div id="app">
+        <div class="app-container">
+            <header class="app-header">
+                <h1>NMR Sample Manager</h1>
+                <nav class="app-nav">
+                    <a href="index.html" class="nav-link">App</a>
+                    <a href="installation.html" class="nav-link active">Installation</a>
+                    <a href="usage.html" class="nav-link">Usage Guide</a>
+                </nav>
+            </header>
+            
+            <div class="main-content">
+                <div class="content-area">
+                    <h1>Installation Guide</h1>
+                    
+                    <h2>Quick Start</h2>
+                    <p>The NMR Sample Manager is a web application that runs entirely in your browser - no installation required!</p>
+                    
+                    <ol>
+                        <li>Download the application files to your computer</li>
+                        <li>Open <code>index.html</code> in Chrome or Edge</li>
+                        <li>Grant file system permissions when prompted</li>
+                        <li>Set your NMR data root directory</li>
+                        <li>Start managing samples</li>
+                    </ol>
+                    
+                    <h2>Browser Requirements</h2>
+                    <p><strong>Recommended:</strong> Chrome 86+ or Edge 86+ for full functionality including direct file access.</p>
+                    <p><strong>Limited support:</strong> Firefox and Safari work with manual file selection only.</p>
+                    <p><strong>Not supported:</strong> Internet Explorer or very old browsers.</p>
+                    
+                    <h2>File System Permissions</h2>
+                    <p>When you first run the application, Chrome/Edge will ask for permission to access your files. This is required to:</p>
+                    <ul>
+                        <li>Read existing sample metadata files</li>
+                        <li>Save new sample information</li>
+                        <li>Browse your NMR experiment directories</li>
+                    </ul>
+                    <p>Click "Allow" when prompted. You can revoke these permissions anytime in your browser settings.</p>
+                    
+                    <h2>Directory Setup</h2>
+                    <p>Set your root directory to point to your main NMR data folder (e.g., <code>/data/nmr</code> or <code>C:\TopSpin\data</code>). The application will then let you browse to specific experiment folders within this root.</p>
+                    
+                    <h2>TopSpin Integration (Optional)</h2>
+                    <p>For seamless TopSpin workflow integration, Python scripts will be available soon that automatically open the sample manager when you inject or eject samples. These scripts will use the existing <code>ij</code> and <code>ej</code> commands but add sample logging functionality.</p>
                 </div>
             </div>
         </div>
     </div>
 </body>
-
 </html>
