@@ -6,6 +6,15 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,50 +32,74 @@ jobs:
           # Copy all source files
           cp -r src/* docs/
           
-          # Create external schema loader for online version
-          echo '// Online version - load schema from external file
-          (async function() {
-            try {
-              const response = await fetch("./schemas/current.json");
-              const schema = await response.json();
+          # Replace {{SCHEMA}} with external schema loading using Python
+          python3 << 'EOF'
+          with open('docs/index.html', 'r') as f:
+              content = f.read()
+          
+          schema_loader = '''fetch("schemas/current.json").then(r => r.json()).then(schema => {
               window.EMBEDDED_SCHEMA = schema;
               if (typeof window.initializeApp === "function") {
-                window.initializeApp();
+                  window.initializeApp();
               }
-            } catch (error) {
+          }).catch(error => {
               console.error("Failed to load schema:", error);
-              if (!window.EMBEDDED_SCHEMA) {
-                alert("Failed to load schema. Please check your connection.");
-              }
-            }
-          })();' > /tmp/external_loader.js
+              alert("Failed to load schema. Please check your connection.");
+          })'''
           
-          # Replace placeholder in online version  
-          sed -i "s|{{SCHEMA}}|$(cat /tmp/external_loader.js)|" docs/index.html
+          content = content.replace('{{SCHEMA}}', schema_loader)
+          
+          with open('docs/index.html', 'w') as f:
+              f.write(content)
+          EOF
           
       - name: Build Offline Version  
         run: |
           # Copy all source files to download directory
           cp -r src/* docs/download/
           
-          # Read and minify schema
-          SCHEMA=$(cat src/schemas/current.json | jq -c .)
+          # Replace {{SCHEMA}} with embedded schema using Python
+          python3 << 'EOF'
+          import json
           
-          # Create embedded schema script
-          echo "window.EMBEDDED_SCHEMA = $SCHEMA;" > /tmp/embedded_schema.js
+          # Read schema
+          with open('src/schemas/current.json', 'r') as f:
+              schema = json.load(f)
           
-          # Replace placeholder in offline version
-          sed -i 's|{{SCHEMA}}|'"$(cat /tmp/embedded_schema.js)"'|' docs/download/index.html
+          # Read HTML file
+          with open('docs/download/index.html', 'r') as f:
+              content = f.read()
+          
+          # Create embedded schema code
+          schema_code = f'Promise.resolve({json.dumps(schema)}).then(schema => {{ window.EMBEDDED_SCHEMA = schema; if (typeof window.initializeApp === "function") {{ window.initializeApp(); }} }})'
+          
+          # Replace placeholder
+          content = content.replace('{{SCHEMA}}', schema_code)
+          
+          # Write back
+          with open('docs/download/index.html', 'w') as f:
+              f.write(content)
+          EOF
           
       - name: Create Offline Package
         run: |
           cd docs/download
           zip -r nmr-samples.zip * -x "*.zip"
           
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        if: github.ref == 'refs/heads/main'
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs
-          force_orphan: true
+          path: './docs'
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
