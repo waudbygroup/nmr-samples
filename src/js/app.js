@@ -1017,36 +1017,16 @@ class NMRSampleManager {
             }
             
             if (experimentEvents.length === 0) {
-                const timeRangeMsg = sampleCreated 
-                    ? (sampleEjected 
-                        ? `between ${sampleCreated.toLocaleString()} and ${sampleEjected.toLocaleString()}`
-                        : `after ${sampleCreated.toLocaleString()}`)
-                    : 'in this directory';
-                
                 return `
                     <div class="detail-section">
                         <h4>Experiments</h4>
-                        <p class="detail-value">No experiments found ${timeRangeMsg}</p>
+                        <p class="detail-value">No experiments found for this sample</p>
                     </div>
                 `;
             }
             
-            // Assign sample group colors (reuse existing logic) but only for our filtered experiments
-            // We need to reconstruct the timeline data with just our filtered experiments for proper color assignment
-            const filteredTimelineData = timelineData.filter(event => {
-                if (event.type === 'Sample') return true; // Keep sample events for color logic
-                if (event.type === 'Experiment') {
-                    // Only keep experiments that are in our filtered list
-                    return experimentEvents.some(exp => exp.experimentNumber === event.experimentNumber);
-                }
-                return false;
-            });
-            
-            const experimentsWithColors = this.assignSampleGroupColors(filteredTimelineData)
-                .filter(event => event.type === 'Experiment');
-            
             let tableRows = '';
-            experimentsWithColors.forEach((event) => {
+            experimentEvents.forEach((event) => {
                 const date = event.rawTimestamp.toLocaleDateString('en-GB', {
                     weekday: 'short',
                     day: 'numeric', 
@@ -1055,7 +1035,8 @@ class NMRSampleManager {
                 });
                 const time = event.rawTimestamp.toTimeString().split(' ')[0];
                 
-                let rowClass = `timeline-group-${event.colorGroup}`;
+                // Use consistent light shading for all rows
+                let rowClass = 'timeline-group-0';
                 
                 tableRows += `
                     <tr class="${rowClass}">
@@ -1068,15 +1049,9 @@ class NMRSampleManager {
                 `;
             });
             
-            const timeRangeHeader = sampleCreated 
-                ? (sampleEjected 
-                    ? ` (${sampleCreated.toLocaleDateString()} - ${sampleEjected.toLocaleDateString()})`
-                    : ` (from ${sampleCreated.toLocaleDateString()})`)
-                : '';
-
             return `
                 <div class="detail-section">
-                    <h4>Experiments (${experimentEvents.length})${timeRangeHeader}</h4>
+                    <h4>Experiments (${experimentEvents.length})</h4>
                     <table class="timeline-table">
                         <thead>
                             <tr>
