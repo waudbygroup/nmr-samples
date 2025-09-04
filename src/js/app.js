@@ -645,7 +645,12 @@ class NMRSampleManager {
         
         if (!editable) {
             // Show nicely formatted sample details
-            formContainer.innerHTML = this.generateSampleDetailsView(data);
+            this.generateSampleDetailsView(data).then(html => {
+                formContainer.innerHTML = html;
+            }).catch(error => {
+                console.error('Error generating sample details:', error);
+                formContainer.innerHTML = `<p class="error">Error loading sample details: ${this.escapeHtml(error.message)}</p>`;
+            });
             return;
         }
 
@@ -752,8 +757,11 @@ class NMRSampleManager {
         this.updateButtonStates(false);
     }
 
-    generateSampleDetailsView(data) {
+    async generateSampleDetailsView(data) {
         const sampleLabel = data.Sample?.Label || 'Untitled Sample';
+        
+        // Get experiments table for this directory
+        const experimentsSection = await this.generateExperimentsSection();
         
         return `
             <div class="sample-details">
@@ -768,6 +776,7 @@ class NMRSampleManager {
                     ${this.generateLabReferenceSection(data['Laboratory Reference'])}
                     ${this.generateNotesSection(data.Notes)}
                     ${this.generateMetadataSection(data.Metadata)}
+                    ${experimentsSection}
                 </div>
             </div>
         `;
@@ -978,6 +987,79 @@ class NMRSampleManager {
         
         
         return html + '</div></div>';
+    }
+
+    async generateExperimentsSection() {
+        try {
+            const timelineData = await this.fileManager.generateTimelineData();
+            
+            // Filter to only show experiment events (not sample events)
+            const experimentEvents = timelineData.filter(event => event.type === 'Experiment');
+            
+            if (experimentEvents.length === 0) {
+                return `
+                    <div class="detail-section">
+                        <h4>Experiments</h4>
+                        <p class="detail-value">No experiments found in this directory</p>
+                    </div>
+                `;
+            }
+            
+            // Assign sample group colors (reuse existing logic)
+            const experimentsWithColors = this.assignSampleGroupColors(timelineData)
+                .filter(event => event.type === 'Experiment');
+            
+            let tableRows = '';
+            experimentsWithColors.forEach((event) => {
+                const date = event.rawTimestamp.toLocaleDateString('en-GB', {
+                    weekday: 'short',
+                    day: 'numeric', 
+                    month: 'short',
+                    year: 'numeric'
+                });
+                const time = event.rawTimestamp.toTimeString().split(' ')[0];
+                
+                let rowClass = `timeline-group-${event.colorGroup}`;
+                
+                tableRows += `
+                    <tr class="${rowClass}">
+                        <td>${event.experimentNumber}</td>
+                        <td>${date}</td>
+                        <td>${time}</td>
+                        <td>${this.escapeHtml(event.event)}</td>
+                        <td>${this.escapeHtml(event.details)}</td>
+                    </tr>
+                `;
+            });
+            
+            return `
+                <div class="detail-section">
+                    <h4>Experiments (${experimentEvents.length})</h4>
+                    <table class="timeline-table">
+                        <thead>
+                            <tr>
+                                <th>Exp</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Pulse Program</th>
+                                <th>Title</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableRows}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        } catch (error) {
+            console.error('Error generating experiments section:', error);
+            return `
+                <div class="detail-section">
+                    <h4>Experiments</h4>
+                    <p class="detail-value error">Error loading experiments: ${this.escapeHtml(error.message)}</p>
+                </div>
+            `;
+        }
     }
 
     showError(message) {
