@@ -441,14 +441,22 @@ class NMRSampleManager {
             await this.selectSample(filename);
         });
 
-        const filenameSpan = document.createElement('span');
-        filenameSpan.className = 'sample-filename';
-        filenameSpan.textContent = filename;
+        const labelSpan = document.createElement('span');
+        labelSpan.className = 'sample-label';
 
         const statusSpan = document.createElement('span');
         statusSpan.className = 'sample-status';
         
         try {
+            // Load sample data to get the label
+            const sampleData = await this.fileManager.readSample(filename);
+            const sampleLabel = sampleData.Sample?.Label || 'Untitled Sample';
+            
+            // Truncate long labels (keep first 25 characters + ellipsis)
+            const displayLabel = sampleLabel.length > 25 ? sampleLabel.substring(0, 25) + '...' : sampleLabel;
+            labelSpan.textContent = displayLabel;
+            labelSpan.title = sampleLabel; // Show full label on hover
+            
             const status = await this.fileManager.getSampleStatus(filename);
             // Only show EJECTED status, hide others
             if (status === 'ejected') {
@@ -458,12 +466,14 @@ class NMRSampleManager {
                 statusSpan.style.display = 'none';
             }
         } catch (error) {
+            // Fallback to filename if sample can't be read
+            labelSpan.textContent = filename;
             statusSpan.textContent = 'ERROR';
             statusSpan.classList.add('status-error');
         }
 
         item.appendChild(radio);
-        item.appendChild(filenameSpan);
+        item.appendChild(labelSpan);
         item.appendChild(statusSpan);
 
         return item;
@@ -1035,8 +1045,8 @@ class NMRSampleManager {
                 });
                 const time = event.rawTimestamp.toTimeString().split(' ')[0];
                 
-                // Use consistent light shading for all rows
-                let rowClass = 'timeline-group-0';
+                // Use consistent darker shading for all rows
+                let rowClass = 'timeline-group-1';
                 
                 tableRows += `
                     <tr class="${rowClass}">
