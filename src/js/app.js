@@ -806,9 +806,9 @@ class NMRSampleManager {
         if (!users || users.length === 0) return '';
         
         return `
-            <div class="detail-section">
-                <h4>Users</h4>
-                <div class="detail-value">${users.map(user => this.escapeHtml(user)).join(', ')}</div>
+            <div class="detail-row">
+                <div class="detail-label">Users</div>
+                <div class="detail-content">${users.map(user => this.escapeHtml(user)).join(', ')}</div>
             </div>
         `;
     }
@@ -816,10 +816,10 @@ class NMRSampleManager {
     generateSampleSection(sample) {
         if (!sample) return '';
         
-        let html = '<div class="detail-section"><h4>Sample</h4>';
+        let content = '';
         
         if (sample.Components && sample.Components.length > 0) {
-            html += '<ul>';
+            const componentLines = [];
             sample.Components.forEach(component => {
                 let componentText = '';
                 if (component.Name) {
@@ -833,50 +833,27 @@ class NMRSampleManager {
                     componentText += ` - ${this.escapeHtml(component['Isotopic labelling'])}`;
                 }
                 if (componentText) {
-                    html += `<li>${componentText}</li>`;
+                    componentLines.push(componentText);
                 }
             });
-            html += '</ul>';
+            content = componentLines.join('<br>');
         }
         
-        return html + '</div>';
+        return content ? `
+            <div class="detail-row">
+                <div class="detail-label">Sample</div>
+                <div class="detail-content">${content}</div>
+            </div>
+        ` : '';
     }
 
     generateBufferSection(buffer) {
         if (!buffer) return '';
         
-        let html = '<div class="detail-section"><h4>Buffer</h4><div class="detail-grid">';
+        const contentLines = [];
         
-        if (buffer.pH !== undefined && buffer.pH !== null) {
-            html += `<div class="detail-item">
-                <span class="detail-label">pH:</span>
-                <span class="detail-value">${buffer.pH}</span>
-            </div>`;
-        }
-        
-        if (buffer['Chemical shift reference'] && buffer['Chemical shift reference'] !== 'none') {
-            let referenceText = this.escapeHtml(buffer['Chemical shift reference']);
-            if (buffer['Reference concentration'] !== undefined && buffer['Reference unit']) {
-                referenceText += ` (${buffer['Reference concentration']} ${buffer['Reference unit']})`;
-            }
-            html += `<div class="detail-item">
-                <span class="detail-label">Reference:</span>
-                <span class="detail-value">${referenceText}</span>
-            </div>`;
-        }
-        
-        if (buffer.Solvent) {
-            html += `<div class="detail-item">
-                <span class="detail-label">Solvent:</span>
-                <span class="detail-value">${this.escapeHtml(buffer.Solvent)}</span>
-            </div>`;
-        }
-        
-        html += '</div>';
-        
+        // Add components first
         if (buffer.Components && buffer.Components.length > 0) {
-            html += '<h5 style="margin: 1rem 0 0.5rem 0; color: #6c757d;">Components</h5>';
-            html += '<ul>';
             buffer.Components.forEach(component => {
                 let componentText = '';
                 if (component.name) {
@@ -887,81 +864,100 @@ class NMRSampleManager {
                     componentText += componentText ? ` (${concentration})` : concentration;
                 }
                 if (componentText) {
-                    html += `<li>${componentText}</li>`;
+                    contentLines.push(componentText);
                 }
             });
-            html += '</ul>';
         }
         
-        return html + '</div>';
+        // Add pH
+        if (buffer.pH !== undefined && buffer.pH !== null) {
+            contentLines.push(`pH: ${buffer.pH}`);
+        }
+        
+        // Add chemical shift reference
+        if (buffer['Chemical shift reference'] && buffer['Chemical shift reference'] !== 'none') {
+            let referenceText = `Chemical shift reference: ${this.escapeHtml(buffer['Chemical shift reference'])}`;
+            if (buffer['Reference concentration'] !== undefined && buffer['Reference unit']) {
+                referenceText += ` (${buffer['Reference concentration']} ${buffer['Reference unit']})`;
+            }
+            contentLines.push(referenceText);
+        }
+        
+        // Add solvent
+        if (buffer.Solvent) {
+            contentLines.push(`Solvent: ${this.escapeHtml(buffer.Solvent)}`);
+        }
+        
+        return contentLines.length > 0 ? `
+            <div class="detail-row">
+                <div class="detail-label">Buffer</div>
+                <div class="detail-content">${contentLines.join('<br>')}</div>
+            </div>
+        ` : '';
     }
 
     generateNMRTubeSection(tube) {
         if (!tube) return '';
         
-        let html = '<div class="detail-section"><h4>NMR Tube</h4><div class="detail-grid">';
+        const contentLines = [];
         
         if (tube.Diameter) {
-            html += `<div class="detail-item">
-                <span class="detail-label">Diameter:</span>
-                <span class="detail-value">${this.escapeHtml(tube.Diameter)}</span>
-            </div>`;
+            contentLines.push(`Diameter: ${this.escapeHtml(tube.Diameter)}`);
         }
         
         if (tube.Type) {
-            html += `<div class="detail-item">
-                <span class="detail-label">Type:</span>
-                <span class="detail-value">${this.escapeHtml(tube.Type)}</span>
-            </div>`;
+            contentLines.push(`Type: ${this.escapeHtml(tube.Type)}`);
+        }
+        
+        if (tube['Sample Volume']) {
+            contentLines.push(`Volume: ${tube['Sample Volume']} µL`);
         }
         
         if (tube['SampleJet Rack Position']) {
-            html += `<div class="detail-item">
-                <span class="detail-label">Rack Position:</span>
-                <span class="detail-value">${this.escapeHtml(tube['SampleJet Rack Position'])}</span>
-            </div>`;
+            contentLines.push(`Rack Position: ${this.escapeHtml(tube['SampleJet Rack Position'])}`);
         }
         
         if (tube['SampleJet Rack ID']) {
-            html += `<div class="detail-item">
-                <span class="detail-label">Rack ID:</span>
-                <span class="detail-value">${this.escapeHtml(tube['SampleJet Rack ID'])}</span>
-            </div>`;
+            contentLines.push(`Rack ID: ${this.escapeHtml(tube['SampleJet Rack ID'])}`);
         }
         
-        return html + '</div></div>';
+        return contentLines.length > 0 ? `
+            <div class="detail-row">
+                <div class="detail-label">NMR Tube</div>
+                <div class="detail-content">${contentLines.join('<br>')}</div>
+            </div>
+        ` : '';
     }
 
 
     generateLabReferenceSection(labRef) {
         if (!labRef) return '';
         
-        let html = '<div class="detail-section"><h4>Laboratory Reference</h4><div class="detail-grid">';
+        const contentLines = [];
         
         if (labRef['Labbook Entry']) {
-            html += `<div class="detail-item">
-                <span class="detail-label">Labbook:</span>
-                <span class="detail-value">${this.escapeHtml(labRef['Labbook Entry'])}</span>
-            </div>`;
+            contentLines.push(`Labbook: ${this.escapeHtml(labRef['Labbook Entry'])}`);
         }
         
         if (labRef['Experiment ID']) {
-            html += `<div class="detail-item">
-                <span class="detail-label">Experiment:</span>
-                <span class="detail-value">${this.escapeHtml(labRef['Experiment ID'])}</span>
-            </div>`;
+            contentLines.push(`Experiment: ${this.escapeHtml(labRef['Experiment ID'])}`);
         }
         
-        return html + '</div></div>';
+        return contentLines.length > 0 ? `
+            <div class="detail-row">
+                <div class="detail-label">Lab Reference</div>
+                <div class="detail-content">${contentLines.join('<br>')}</div>
+            </div>
+        ` : '';
     }
 
     generateNotesSection(notes) {
         if (!notes) return '';
         
         return `
-            <div class="detail-section">
-                <h4>Notes</h4>
-                <div class="detail-value" style="white-space: pre-wrap;">${this.escapeHtml(notes)}</div>
+            <div class="detail-row">
+                <div class="detail-label">Notes</div>
+                <div class="detail-content" style="white-space: pre-wrap;">${this.escapeHtml(notes)}</div>
             </div>
         `;
     }
@@ -969,34 +965,29 @@ class NMRSampleManager {
     generateMetadataSection(metadata) {
         if (!metadata) return '';
         
-        let html = '<div class="detail-section"><h4>Metadata</h4><div class="detail-grid">';
+        const contentLines = [];
         
         if (metadata.created_timestamp) {
             const created = new Date(metadata.created_timestamp).toLocaleString();
-            html += `<div class="detail-item">
-                <span class="detail-label">Created:</span>
-                <span class="detail-value">${created}</span>
-            </div>`;
+            contentLines.push(`Created: ${created}`);
         }
         
         if (metadata.modified_timestamp) {
             const modified = new Date(metadata.modified_timestamp).toLocaleString();
-            html += `<div class="detail-item">
-                <span class="detail-label">Modified:</span>
-                <span class="detail-value">${modified}</span>
-            </div>`;
+            contentLines.push(`Modified: ${modified}`);
         }
         
         if (metadata.ejected_timestamp) {
             const ejected = new Date(metadata.ejected_timestamp).toLocaleString();
-            html += `<div class="detail-item">
-                <span class="detail-label">Ejected:</span>
-                <span class="detail-value">${ejected}</span>
-            </div>`;
+            contentLines.push(`Ejected: ${ejected}`);
         }
         
-        
-        return html + '</div></div>';
+        return contentLines.length > 0 ? `
+            <div class="detail-row">
+                <div class="detail-label">Metadata</div>
+                <div class="detail-content">${contentLines.join('<br>')}</div>
+            </div>
+        ` : '';
     }
 
     async generateExperimentsSection(sampleData) {
@@ -1028,9 +1019,9 @@ class NMRSampleManager {
             
             if (experimentEvents.length === 0) {
                 return `
-                    <div class="detail-section">
+                    <div class="experiments-section">
                         <h4>Experiments</h4>
-                        <p class="detail-value">No experiments found for this sample</p>
+                        <p>No experiments found for this sample</p>
                     </div>
                 `;
             }
@@ -1060,7 +1051,7 @@ class NMRSampleManager {
             });
             
             return `
-                <div class="detail-section">
+                <div class="experiments-section">
                     <h4>Experiments (${experimentEvents.length})</h4>
                     <table class="timeline-table">
                         <thead>
