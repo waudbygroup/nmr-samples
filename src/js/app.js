@@ -760,8 +760,8 @@ class NMRSampleManager {
     async generateSampleDetailsView(data) {
         const sampleLabel = data.Sample?.Label || 'Untitled Sample';
         
-        // Get experiments table for this directory
-        const experimentsSection = await this.generateExperimentsSection();
+        // Get experiments table for this sample's lifecycle
+        const experimentsSection = await this.generateExperimentsSection(data);
         
         return `
             <div class="sample-details">
@@ -989,24 +989,60 @@ class NMRSampleManager {
         return html + '</div></div>';
     }
 
-    async generateExperimentsSection() {
+    async generateExperimentsSection(sampleData) {
         try {
             const timelineData = await this.fileManager.generateTimelineData();
             
-            // Filter to only show experiment events (not sample events)
-            const experimentEvents = timelineData.filter(event => event.type === 'Experiment');
+            // Get sample lifecycle timestamps
+            const metadata = sampleData.Metadata || {};
+            const sampleCreated = metadata.created_timestamp ? new Date(metadata.created_timestamp) : null;
+            const sampleEjected = metadata.ejected_timestamp ? new Date(metadata.ejected_timestamp) : null;
+            
+            // Filter to only show experiment events within sample lifecycle
+            let experimentEvents = timelineData.filter(event => event.type === 'Experiment');
+            
+            // Filter by sample lifecycle if we have timestamps
+            if (sampleCreated) {
+                experimentEvents = experimentEvents.filter(event => {
+                    const experimentTime = event.rawTimestamp;
+                    
+                    // Must be after sample creation
+                    if (experimentTime < sampleCreated) return false;
+                    
+                    // Must be before sample ejection (if ejected)
+                    if (sampleEjected && experimentTime > sampleEjected) return false;
+                    
+                    return true;
+                });
+            }
             
             if (experimentEvents.length === 0) {
+                const timeRangeMsg = sampleCreated 
+                    ? (sampleEjected 
+                        ? `between ${sampleCreated.toLocaleString()} and ${sampleEjected.toLocaleString()}`
+                        : `after ${sampleCreated.toLocaleString()}`)
+                    : 'in this directory';
+                
                 return `
                     <div class="detail-section">
                         <h4>Experiments</h4>
-                        <p class="detail-value">No experiments found in this directory</p>
+                        <p class="detail-value">No experiments found ${timeRangeMsg}</p>
                     </div>
                 `;
             }
             
-            // Assign sample group colors (reuse existing logic)
-            const experimentsWithColors = this.assignSampleGroupColors(timelineData)
+            // Assign sample group colors (reuse existing logic) but only for our filtered experiments
+            // We need to reconstruct the timeline data with just our filtered experiments for proper color assignment
+            const filteredTimelineData = timelineData.filter(event => {
+                if (event.type === 'Sample') return true; // Keep sample events for color logic
+                if (event.type === 'Experiment') {
+                    // Only keep experiments that are in our filtered list
+                    return experimentEvents.some(exp => exp.experimentNumber === event.experimentNumber);
+                }
+                return false;
+            });
+            
+            const experimentsWithColors = this.assignSampleGroupColors(filteredTimelineData)
                 .filter(event => event.type === 'Experiment');
             
             let tableRows = '';
@@ -1032,9 +1068,15 @@ class NMRSampleManager {
                 `;
             });
             
+            const timeRangeHeader = sampleCreated 
+                ? (sampleEjected 
+                    ? ` (${sampleCreated.toLocaleDateString()} - ${sampleEjected.toLocaleDateString()})`
+                    : ` (from ${sampleCreated.toLocaleDateString()})`)
+                : '';
+
             return `
                 <div class="detail-section">
-                    <h4>Experiments (${experimentEvents.length})</h4>
+                    <h4>Experiments (${experimentEvents.length})${timeRangeHeader}</h4>
                     <table class="timeline-table">
                         <thead>
                             <tr>
