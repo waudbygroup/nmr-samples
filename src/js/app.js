@@ -836,7 +836,9 @@ class NMRSampleManager {
                     componentLines.push(componentText);
                 }
             });
-            content = componentLines.join('<br>');
+            content = '<ul style="margin: 0; padding-left: 1.2rem;">' + 
+                      componentLines.map(line => `<li>${line}</li>`).join('') + 
+                      '</ul>';
         }
         
         return content ? `
@@ -850,9 +852,10 @@ class NMRSampleManager {
     generateBufferSection(buffer) {
         if (!buffer) return '';
         
-        const contentLines = [];
+        const componentsList = [];
+        const otherInfo = [];
         
-        // Add components first
+        // Add components as bullet points
         if (buffer.Components && buffer.Components.length > 0) {
             buffer.Components.forEach(component => {
                 let componentText = '';
@@ -864,36 +867,48 @@ class NMRSampleManager {
                     componentText += componentText ? ` (${concentration})` : concentration;
                 }
                 if (componentText) {
-                    contentLines.push(componentText);
+                    componentsList.push(componentText);
                 }
             });
         }
         
-        // Add pH
+        // Add other buffer info with bold labels
         if (buffer.pH !== undefined && buffer.pH !== null) {
-            contentLines.push(`pH: ${buffer.pH}`);
+            otherInfo.push(`<strong>pH:</strong> ${buffer.pH}`);
         }
         
-        // Add chemical shift reference
         if (buffer['Chemical shift reference'] && buffer['Chemical shift reference'] !== 'none') {
-            let referenceText = `Chemical shift reference: ${this.escapeHtml(buffer['Chemical shift reference'])}`;
+            let referenceText = `<strong>Chemical shift reference:</strong> ${this.escapeHtml(buffer['Chemical shift reference'])}`;
             if (buffer['Reference concentration'] !== undefined && buffer['Reference unit']) {
                 referenceText += ` (${buffer['Reference concentration']} ${buffer['Reference unit']})`;
             }
-            contentLines.push(referenceText);
+            otherInfo.push(referenceText);
         }
         
-        // Add solvent
         if (buffer.Solvent) {
-            contentLines.push(`Solvent: ${this.escapeHtml(buffer.Solvent)}`);
+            otherInfo.push(`<strong>Solvent:</strong> ${this.escapeHtml(buffer.Solvent)}`);
         }
         
-        return contentLines.length > 0 ? `
+        if (componentsList.length === 0 && otherInfo.length === 0) return '';
+        
+        let content = '';
+        if (componentsList.length > 0) {
+            content += '<ul style="margin: 0; padding-left: 1.2rem;">' + 
+                      componentsList.map(line => `<li>${line}</li>`).join('') + 
+                      '</ul>';
+            if (otherInfo.length > 0) {
+                content += '<br>' + otherInfo.join('<br>');
+            }
+        } else {
+            content = otherInfo.join('<br>');
+        }
+        
+        return `
             <div class="detail-row">
                 <div class="detail-label">Buffer</div>
-                <div class="detail-content">${contentLines.join('<br>')}</div>
+                <div class="detail-content">${content}</div>
             </div>
-        ` : '';
+        `;
     }
 
     generateNMRTubeSection(tube) {
@@ -902,23 +917,23 @@ class NMRSampleManager {
         const contentLines = [];
         
         if (tube.Diameter) {
-            contentLines.push(`Diameter: ${this.escapeHtml(tube.Diameter)}`);
+            contentLines.push(`<strong>Diameter:</strong> ${this.escapeHtml(tube.Diameter)}`);
         }
         
         if (tube.Type) {
-            contentLines.push(`Type: ${this.escapeHtml(tube.Type)}`);
+            contentLines.push(`<strong>Type:</strong> ${this.escapeHtml(tube.Type)}`);
         }
         
         if (tube['Sample Volume']) {
-            contentLines.push(`Volume: ${tube['Sample Volume']} µL`);
+            contentLines.push(`<strong>Volume:</strong> ${tube['Sample Volume']} µL`);
         }
         
         if (tube['SampleJet Rack Position']) {
-            contentLines.push(`Rack Position: ${this.escapeHtml(tube['SampleJet Rack Position'])}`);
+            contentLines.push(`<strong>Rack Position:</strong> ${this.escapeHtml(tube['SampleJet Rack Position'])}`);
         }
         
         if (tube['SampleJet Rack ID']) {
-            contentLines.push(`Rack ID: ${this.escapeHtml(tube['SampleJet Rack ID'])}`);
+            contentLines.push(`<strong>Rack ID:</strong> ${this.escapeHtml(tube['SampleJet Rack ID'])}`);
         }
         
         return contentLines.length > 0 ? `
@@ -936,11 +951,11 @@ class NMRSampleManager {
         const contentLines = [];
         
         if (labRef['Labbook Entry']) {
-            contentLines.push(`Labbook: ${this.escapeHtml(labRef['Labbook Entry'])}`);
+            contentLines.push(`<strong>Labbook:</strong> ${this.escapeHtml(labRef['Labbook Entry'])}`);
         }
         
         if (labRef['Experiment ID']) {
-            contentLines.push(`Experiment: ${this.escapeHtml(labRef['Experiment ID'])}`);
+            contentLines.push(`<strong>Experiment:</strong> ${this.escapeHtml(labRef['Experiment ID'])}`);
         }
         
         return contentLines.length > 0 ? `
@@ -968,18 +983,33 @@ class NMRSampleManager {
         const contentLines = [];
         
         if (metadata.created_timestamp) {
-            const created = new Date(metadata.created_timestamp).toLocaleString();
-            contentLines.push(`Created: ${created}`);
+            const created = new Date(metadata.created_timestamp).toLocaleDateString('en-GB', {
+                weekday: 'short',
+                day: 'numeric', 
+                month: 'short',
+                year: 'numeric'
+            });
+            contentLines.push(`<strong>Created:</strong> ${created}`);
         }
         
         if (metadata.modified_timestamp) {
-            const modified = new Date(metadata.modified_timestamp).toLocaleString();
-            contentLines.push(`Modified: ${modified}`);
+            const modified = new Date(metadata.modified_timestamp).toLocaleDateString('en-GB', {
+                weekday: 'short',
+                day: 'numeric', 
+                month: 'short',
+                year: 'numeric'
+            });
+            contentLines.push(`<strong>Modified:</strong> ${modified}`);
         }
         
         if (metadata.ejected_timestamp) {
-            const ejected = new Date(metadata.ejected_timestamp).toLocaleString();
-            contentLines.push(`Ejected: ${ejected}`);
+            const ejected = new Date(metadata.ejected_timestamp).toLocaleDateString('en-GB', {
+                weekday: 'short',
+                day: 'numeric', 
+                month: 'short',
+                year: 'numeric'
+            });
+            contentLines.push(`<strong>Ejected:</strong> ${ejected}`);
         }
         
         return contentLines.length > 0 ? `

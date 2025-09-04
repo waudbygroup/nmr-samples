@@ -355,11 +355,10 @@ body {
 .detail-label {
     width: 120px;
     flex-shrink: 0;
-    font-weight: 600;
+    font-weight: 700;
     color: #495057;
     font-size: 0.9rem;
     padding-top: 0.1rem;
-    font-style: italic;
 }
 
 .detail-content {
