@@ -983,33 +983,39 @@ class NMRSampleManager {
         const contentLines = [];
         
         if (metadata.created_timestamp) {
-            const created = new Date(metadata.created_timestamp).toLocaleDateString('en-GB', {
+            const createdDate = new Date(metadata.created_timestamp);
+            const dateStr = createdDate.toLocaleDateString('en-GB', {
                 weekday: 'short',
                 day: 'numeric', 
                 month: 'short',
                 year: 'numeric'
             });
-            contentLines.push(`<strong>Created:</strong> ${created}`);
+            const timeStr = createdDate.toTimeString().split(' ')[0];
+            contentLines.push(`<strong>Created:</strong> ${dateStr} ${timeStr}`);
         }
         
         if (metadata.modified_timestamp) {
-            const modified = new Date(metadata.modified_timestamp).toLocaleDateString('en-GB', {
+            const modifiedDate = new Date(metadata.modified_timestamp);
+            const dateStr = modifiedDate.toLocaleDateString('en-GB', {
                 weekday: 'short',
                 day: 'numeric', 
                 month: 'short',
                 year: 'numeric'
             });
-            contentLines.push(`<strong>Modified:</strong> ${modified}`);
+            const timeStr = modifiedDate.toTimeString().split(' ')[0];
+            contentLines.push(`<strong>Modified:</strong> ${dateStr} ${timeStr}`);
         }
         
         if (metadata.ejected_timestamp) {
-            const ejected = new Date(metadata.ejected_timestamp).toLocaleDateString('en-GB', {
+            const ejectedDate = new Date(metadata.ejected_timestamp);
+            const dateStr = ejectedDate.toLocaleDateString('en-GB', {
                 weekday: 'short',
                 day: 'numeric', 
                 month: 'short',
                 year: 'numeric'
             });
-            contentLines.push(`<strong>Ejected:</strong> ${ejected}`);
+            const timeStr = ejectedDate.toTimeString().split(' ')[0];
+            contentLines.push(`<strong>Ejected:</strong> ${dateStr} ${timeStr}`);
         }
         
         return contentLines.length > 0 ? `
