@@ -1223,6 +1223,7 @@ class NMRSampleManager {
                     <td>${time}</td>
                     <td>${typeDisplay}</td>
                     <td>${this.escapeHtml(event.event)}</td>
+                    <td>${event.holder || '-'}</td>
                     <td>${this.escapeHtml(event.details)}</td>
                 </tr>
             `;
@@ -1239,6 +1240,7 @@ class NMRSampleManager {
                             <th>Time</th>
                             <th>Experiment</th>
                             <th>Event / pulseprogram</th>
+                            <th>Holder</th>
                             <th>Details</th>
                         </tr>
                     </thead>

@@ -503,7 +503,8 @@ class FileManager {
                 return null;
             }
 
-            // Read acqus for pulse program
+            // Read acqus for pulse program and HOLDER
+            let holder = null;
             try {
                 const acqusHandle = await expHandle.getFileHandle('acqus');
                 const acqusFile = await acqusHandle.getFile();
@@ -512,6 +513,11 @@ class FileManager {
                 const pulseMatch = acqusText.match(/##\$PULPROG= <(.+?)>/);
                 if (pulseMatch) {
                     pulseProgram = pulseMatch[1];
+                }
+                
+                const holderMatch = acqusText.match(/##\$HOLDER= (\d+)/);
+                if (holderMatch) {
+                    holder = holderMatch[1];
                 }
             } catch (error) {
                 // acqus missing - skip this experiment
@@ -537,7 +543,8 @@ class FileManager {
             return {
                 startTime,
                 pulseProgram,
-                title
+                title,
+                holder
             };
         } catch (error) {
             console.error(`Error reading experiment data:`, error);
@@ -601,6 +608,7 @@ class FileManager {
                             event: expData.pulseProgram,
                             details: expData.title || `Experiment ${expDir.number}`,
                             experimentNumber: expDir.number,
+                            holder: expData.holder,
                             rawTimestamp: new Date(isoTimestamp)
                         });
                     }
