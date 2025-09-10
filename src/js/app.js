@@ -1197,6 +1197,11 @@ class NMRSampleManager {
         // Assign sample group colors
         const timelineWithColors = this.assignSampleGroupColors(timelineData);
 
+        // Check if we should show the HOLDER column (hide if all values are zero or empty)
+        const shouldShowHolderColumn = timelineWithColors.some(event => {
+            return event.holder && event.holder !== '0' && event.holder !== 0;
+        });
+
         let tableRows = '';
         timelineWithColors.forEach((event) => {
             // Format date as "Mon 9 Oct 2023"
@@ -1217,13 +1222,15 @@ class NMRSampleManager {
             // Show experiment number for experiments, or just the type for samples
             const typeDisplay = event.type === 'Experiment' ? event.experimentNumber : event.type;
             
+            const holderCell = shouldShowHolderColumn ? `<td>${event.holder || '-'}</td>` : '';
+            
             tableRows += `
                 <tr class="${rowClass}">
                     <td>${date}</td>
                     <td>${time}</td>
+                    ${holderCell}
                     <td>${typeDisplay}</td>
                     <td>${this.escapeHtml(event.event)}</td>
-                    <td>${event.holder || '-'}</td>
                     <td>${this.escapeHtml(event.details)}</td>
                 </tr>
             `;
@@ -1238,9 +1245,9 @@ class NMRSampleManager {
                         <tr>
                             <th>Date</th>
                             <th>Time</th>
+                            ${shouldShowHolderColumn ? '<th>Holder</th>' : ''}
                             <th>Experiment</th>
                             <th>Event / pulseprogram</th>
-                            <th>Holder</th>
                             <th>Details</th>
                         </tr>
                     </thead>
