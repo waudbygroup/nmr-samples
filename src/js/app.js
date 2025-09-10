@@ -1139,27 +1139,65 @@ class NMRSampleManager {
      */
     assignSampleGroupColors(timelineData) {
         const result = [];
-        let currentColorIndex = 0;
-        let currentSample = null;
+        const hasSamples = timelineData.some(event => event.type === 'Sample');
         
-        timelineData.forEach((event) => {
-            if (event.type === 'Sample' && event.event === 'Created') {
-                // New sample session starts
-                currentSample = event.details;
-                currentColorIndex = currentColorIndex === 0 ? 1 : 0; // Alternate between 0 and 1
-            }
+        if (hasSamples) {
+            // Use sample-based coloring (existing logic)
+            let currentColorIndex = 0;
+            let currentSample = null;
             
-            // Assign current color to this event
-            result.push({
-                ...event,
-                colorGroup: currentColorIndex
+            timelineData.forEach((event) => {
+                if (event.type === 'Sample' && event.event === 'Created') {
+                    // New sample session starts
+                    currentSample = event.details;
+                    currentColorIndex = currentColorIndex === 0 ? 1 : 0; // Alternate between 0 and 1
+                }
+                
+                // Assign current color to this event
+                result.push({
+                    ...event,
+                    colorGroup: currentColorIndex
+                });
+                
+                if (event.type === 'Sample' && event.event === 'Ejected' && event.details === currentSample) {
+                    // Sample session ends
+                    currentSample = null;
+                }
             });
+        } else {
+            // Use holder-based coloring when no samples exist
+            const hasNonZeroHolders = timelineData.some(event => 
+                event.holder && event.holder !== '0' && event.holder !== 0
+            );
             
-            if (event.type === 'Sample' && event.event === 'Ejected' && event.details === currentSample) {
-                // Sample session ends
-                currentSample = null;
+            if (hasNonZeroHolders) {
+                let currentColorIndex = 0;
+                let currentHolder = null;
+                
+                timelineData.forEach((event) => {
+                    const eventHolder = event.holder || null;
+                    
+                    // Change color when holder changes
+                    if (eventHolder !== currentHolder) {
+                        currentHolder = eventHolder;
+                        currentColorIndex = currentColorIndex === 0 ? 1 : 0;
+                    }
+                    
+                    result.push({
+                        ...event,
+                        colorGroup: currentColorIndex
+                    });
+                });
+            } else {
+                // No samples and no non-zero holders - use default coloring
+                timelineData.forEach((event) => {
+                    result.push({
+                        ...event,
+                        colorGroup: 0
+                    });
+                });
             }
-        });
+        }
         
         return result;
     }

@@ -606,7 +606,7 @@ class FileManager {
                             timestamp: expData.startTime,
                             type: 'Experiment',
                             event: expData.pulseProgram,
-                            details: expData.title || `Experiment ${expDir.number}`,
+                            details: expData.title || '',
                             experimentNumber: expDir.number,
                             holder: expData.holder,
                             rawTimestamp: new Date(isoTimestamp)
