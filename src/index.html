@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,18 +12,22 @@
     <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/react-jsonschema-form@1.8.1/dist/react-jsonschema-form.js"></script>
 </head>
+
 <body>
     <div id="app">
         <div class="app-container">
             <header class="app-header">
                 <h1>NMR Sample Manager</h1>
                 <nav class="app-nav">
+                    <a href="index.html" class="nav-link active">Application</a>
                     <a href="installation.html" class="nav-link">Installation</a>
                     <a href="usage.html" class="nav-link">Usage Guide</a>
-                    <a href="https://waudbylab.org/topspin-samples/" target="_blank" class="nav-link">TopSpin Integration</a>
+                    <a href="https://waudbylab.org/topspin-samples/" class="nav-link">Topspin Integration</a>
+                    <a href="https://waudbylab.org/" class="nav-link">Waudby Group</a>
+
                 </nav>
             </header>
-            
+
             <div class="main-content">
                 <!-- Left Sidebar -->
                 <aside class="sidebar">
@@ -53,7 +58,7 @@
                         <div id="sample-list" class="sample-list">
                             <p class="placeholder">Select a folder to see samples</p>
                         </div>
-                        
+
                         <!-- Sample Actions -->
                         <div class="sample-actions">
                             <button id="new-sample" class="btn btn-success btn-sm">New Sample</button>
@@ -69,7 +74,8 @@
                     <div id="sample-form" class="content-body">
                         <div class="welcome-message">
                             <h3>Welcome to NMR Sample Manager</h3>
-                            <p>Select a folder and choose a sample to view its details, or create a new sample to get started.</p>
+                            <p>Select a folder and choose a sample to view its details, or create a new sample to get
+                                started.</p>
                         </div>
                     </div>
                 </main>
@@ -79,12 +85,12 @@
 
     <!-- Schema Loading -->
     <script>
-        {{SCHEMA}}
+        { { SCHEMA } }
     </script>
 
     <!-- Migrations Loading (for offline/embedded mode) -->
     <script>
-        {{MIGRATIONS}}
+        { { MIGRATIONS } }
     </script>
 
     <!-- Scripts -->
@@ -93,7 +99,7 @@
     <script src="js/file-manager.js"></script>
     <script src="js/schema-handler.js"></script>
     <script src="js/app.js"></script>
-    
+
     <!-- App Initialization -->
     <script>
         function initializeApp() {
@@ -102,17 +108,17 @@
                 window.app = new NMRSampleManager();
             } else {
                 // Schema not loaded yet, wait for it
-                window.addEventListener('schemaReady', function() {
+                window.addEventListener('schemaReady', function () {
                     window.app = new NMRSampleManager();
                 }, { once: true });
-                
-                window.addEventListener('schemaError', function(event) {
+
+                window.addEventListener('schemaError', function (event) {
                     console.error('Schema loading failed:', event.detail);
                     alert('Failed to load application schema. Please refresh the page.');
                 }, { once: true });
             }
         }
-        
+
         // Initialize when DOM is ready
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initializeApp);
@@ -121,4 +127,5 @@
         }
     </script>
 </body>
+
 </html>

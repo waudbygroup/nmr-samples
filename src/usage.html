@@ -16,7 +16,8 @@
                 <a href="index.html">Application</a>
                 <a href="installation.html">Installation</a>
                 <a href="usage.html" class="active">Usage Guide</a>
-                <a href="https://waudbylab.org/topspin-samples/" target="_blank">TopSpin Integration</a>
+                <a href="https://waudbylab.org/topspin-samples/">Topspin Integration</a>
+                <a href="https://waudbylab.org/">Waudby Group</a>
             </nav>
         </div>
     </header>
@@ -105,24 +106,6 @@
             <li>Use the Notes field for any additional observations</li>
         </ul>
 
-        <h2>Controlling the App via URL Parameters</h2>
-        <p>The application can be controlled via URL parameters, which is useful for TopSpin integration scripts:</p>
-
-        <h3>Navigate to a specific folder</h3>
-        <p><code>https://waudbylab.org/nmr-samples/?folder=/path/to/experiment</code></p>
-        <p>This will automatically navigate to the specified experiment folder.</p>
-
-        <h3>Sample injection</h3>
-        <p><code>https://waudbylab.org/nmr-samples/?folder=/path/to/experiment&action=inject</code></p>
-        <p>This will navigate to the folder and open the sample creation form for a new injection.</p>
-
-        <h3>Automatic sample ejection</h3>
-        <p><code>https://waudbylab.org/nmr-samples/?folder=/path/to/experiment&action=eject</code></p>
-        <p>This will navigate to the folder and automatically eject the most recent active sample.</p>
-
-        <p>These URL parameters enable TopSpin integration scripts to automatically manage samples during your workflow.
-        </p>
-
         <h2>JSON Schema</h2>
         <p>The NMR Sample Manager uses a <strong>JSON Schema</strong> to define the structure and validation rules for
             sample metadata. A JSON Schema is like a blueprint that describes what information can be stored and how it
@@ -136,7 +119,8 @@
             <li>Default values and descriptions for each field</li>
         </ul>
 
-        <p>The current schema version is available at: <a href="https://waudbylab.org/nmr-samples/schemas/current/schema.json"
+        <p>The current schema version is available at: <a
+                href="https://waudbylab.org/nmr-samples/schemas/current/schema.json"
                 target="_blank">current/schema.json</a></p>
 
         <p>This schema-driven approach ensures:</p>
