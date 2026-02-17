@@ -31,15 +31,15 @@ jobs:
         run: |
           # Copy all source files
           cp -r src/* docs/
-          
-          # Replace {{SCHEMA}} with external schema loading using Python
+
+          # Replace {{SCHEMA}} and {{MIGRATIONS}} with external loading using Python
           python3 << 'EOF'
           with open('docs/index.html', 'r') as f:
               content = f.read()
-          
+
           schema_loader = '''(async function() {
               try {
-                  const response = await fetch("schemas/current.json");
+                  const response = await fetch("schemas/current/schema.json");
                   const schema = await response.json();
                   window.EMBEDDED_SCHEMA = schema;
                   window.SCHEMA_LOADED = true;
@@ -51,36 +51,47 @@ jobs:
                   window.dispatchEvent(new CustomEvent('schemaError', { detail: error }));
               }
           })();'''
-          
+
+          # Migrations will be loaded from external URL (not embedded for online version)
+          migrations_comment = '// Migrations loaded from external URL via loadMigrations()'
+
           content = content.replace('{{SCHEMA}}', schema_loader)
-          
+          content = content.replace('{{MIGRATIONS}}', migrations_comment)
+
           with open('docs/index.html', 'w') as f:
               f.write(content)
           EOF
           
-      - name: Build Offline Version  
+      - name: Build Offline Version
         run: |
           # Copy all source files to download directory
           cp -r src/* docs/download/
-          
-          # Replace {{SCHEMA}} with embedded schema using Python
+
+          # Replace {{SCHEMA}} and {{MIGRATIONS}} with embedded data using Python
           python3 << 'EOF'
           import json
-          
-          # Read schema
-          with open('src/schemas/current.json', 'r') as f:
+
+          # Read schema and migrations
+          with open('src/schemas/current/schema.json', 'r') as f:
               schema = json.load(f)
-          
+          with open('src/schemas/current/patch.json', 'r') as f:
+              migrations = json.load(f)
+
           # Read HTML file
           with open('docs/download/index.html', 'r') as f:
               content = f.read()
-          
-          # Create embedded schema code  
+
+          # Create embedded schema code
           schema_code = f'window.EMBEDDED_SCHEMA = {json.dumps(schema)}; window.SCHEMA_LOADED = true; window.dispatchEvent(new CustomEvent("schemaReady"));'
-          
-          # Replace placeholder
+
+          # Create embedded migrations code
+          migrations_code = f'window.EMBEDDED_MIGRATIONS = {json.dumps(migrations)};'
+
+          # Replace placeholders
           content = content.replace('{{SCHEMA}}', schema_code)
-          
+          if '{{MIGRATIONS}}' in content:
+              content = content.replace('{{MIGRATIONS}}', migrations_code)
+
           # Write back
           with open('docs/download/index.html', 'w') as f:
               f.write(content)

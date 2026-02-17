@@ -81,7 +81,13 @@
         {{SCHEMA}}
     </script>
 
+    <!-- Migrations Loading (for offline/embedded mode) -->
+    <script>
+        {{MIGRATIONS}}
+    </script>
+
     <!-- Scripts -->
+    <script src="schemas/migration/schema_migrate.js"></script>
     <script src="js/storage.js"></script>
     <script src="js/file-manager.js"></script>
     <script src="js/schema-handler.js"></script>
