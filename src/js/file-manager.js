@@ -495,38 +495,28 @@ class FileManager {
      */
     async readExperimentData(expHandle) {
         try {
-            let startTime = null;
+            let date = null;
             let pulseProgram = null;
             let title = null;
-
-            // Read audita.txt for start time
-            try {
-                const auditaHandle = await expHandle.getFileHandle('audita.txt');
-                const auditaFile = await auditaHandle.getFile();
-                const auditaText = await auditaFile.text();
-                
-                const timeMatch = auditaText.match(/started at (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} [+-]\d{4})/);
-                if (timeMatch) {
-                    startTime = timeMatch[1];
-                }
-            } catch (error) {
-                // audita.txt missing - skip this experiment
-                return null;
-            }
-
-            // Read acqus for pulse program and HOLDER
             let holder = null;
+
+            // Read acqus for timestamp (DATE), pulse program, and HOLDER
             try {
                 const acqusHandle = await expHandle.getFileHandle('acqus');
                 const acqusFile = await acqusHandle.getFile();
                 const acqusText = await acqusFile.text();
-                
-                const pulseMatch = acqusText.match(/##\$PULPROG= <(.+?)>/);
+
+                const dateMatch = acqusText.match(/^##\$DATE= (\d+)/m);
+                if (dateMatch) {
+                    date = new Date(parseInt(dateMatch[1], 10) * 1000);
+                }
+
+                const pulseMatch = acqusText.match(/^##\$PULPROG= <(.+?)>/m);
                 if (pulseMatch) {
                     pulseProgram = pulseMatch[1];
                 }
-                
-                const holderMatch = acqusText.match(/##\$HOLDER= (\d+)/);
+
+                const holderMatch = acqusText.match(/^##\$HOLDER= (\d+)/m);
                 if (holderMatch) {
                     holder = holderMatch[1];
                 }
@@ -534,6 +524,8 @@ class FileManager {
                 // acqus missing - skip this experiment
                 return null;
             }
+
+            if (!date) return null;
 
             // Read pdata/1/title for experiment title (optional)
             try {
@@ -552,7 +544,7 @@ class FileManager {
             }
 
             return {
-                startTime,
+                date,
                 pulseProgram,
                 title,
                 holder
@@ -607,22 +599,16 @@ class FileManager {
         for (const expDir of experimentDirs) {
             try {
                 const expData = await this.readExperimentData(expDir.handle);
-                if (expData && expData.startTime && expData.pulseProgram) {
-                    // Parse the timestamp format: "2024-04-24 14:04:59.108 +0100"
-                    const timestampMatch = expData.startTime.match(/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\.\d{3} [+-]\d{4}/);
-                    if (timestampMatch) {
-                        const isoTimestamp = timestampMatch[1].replace(' ', 'T') + 'Z';
-                        
-                        timelineEvents.push({
-                            timestamp: expData.startTime,
-                            type: 'Experiment',
-                            event: expData.pulseProgram,
-                            details: expData.title || '',
-                            experimentNumber: expDir.number,
-                            holder: expData.holder,
-                            rawTimestamp: new Date(isoTimestamp)
-                        });
-                    }
+                if (expData && expData.date && expData.pulseProgram) {
+                    timelineEvents.push({
+                        timestamp: expData.date.toISOString(),
+                        type: 'Experiment',
+                        event: expData.pulseProgram,
+                        details: expData.title || '',
+                        experimentNumber: expDir.number,
+                        holder: expData.holder,
+                        rawTimestamp: expData.date
+                    });
                 }
             } catch (error) {
                 console.error(`Error reading experiment ${expDir.number} for timeline:`, error);
