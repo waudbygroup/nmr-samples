@@ -32,6 +32,16 @@ class NMRSampleManager {
             // Initialize FileManager with storage
             await this.fileManager.initialize();
 
+            // Load migrations and pass to FileManager so readSample can auto-migrate
+            if (typeof loadMigrations === 'function') {
+                try {
+                    const migrations = await loadMigrations();
+                    this.fileManager.setMigrations(migrations);
+                } catch (e) {
+                    console.warn('Could not load migrations:', e);
+                }
+            }
+
             // Load schema
             await this.schemaHandler.loadSchema();
 
@@ -450,7 +460,7 @@ class NMRSampleManager {
         try {
             // Load sample data to get the label
             const sampleData = await this.fileManager.readSample(filename);
-            const sampleLabel = sampleData.Sample?.Label || 'Untitled Sample';
+            const sampleLabel = sampleData.sample?.label || 'Untitled Sample';
             
             // Truncate long labels (keep first 25 characters + ellipsis)
             const displayLabel = sampleLabel.length > 25 ? sampleLabel.substring(0, 25) + '...' : sampleLabel;
@@ -721,7 +731,7 @@ class NMRSampleManager {
             // Generate filename if this is a new sample
             let filename = this.selectedSampleFile;
             if (!filename) {
-                const sampleLabel = processedData.Sample?.Label || 'NewSample';
+                const sampleLabel = processedData.sample?.label || 'NewSample';
                 filename = this.fileManager.generateFilename(sampleLabel);
             }
 
@@ -768,24 +778,24 @@ class NMRSampleManager {
     }
 
     async generateSampleDetailsView(data) {
-        const sampleLabel = data.Sample?.Label || 'Untitled Sample';
-        
+        const sampleLabel = data.sample?.label || 'Untitled Sample';
+
         // Get experiments table for this sample's lifecycle
         const experimentsSection = await this.generateExperimentsSection(data);
-        
+
         return `
             <div class="sample-details">
                 <div class="sample-details-header">
                     <h3>Sample: ${this.escapeHtml(sampleLabel)}</h3>
                 </div>
                 <div class="sample-details-body">
-                    ${this.generateUsersSection(data.Users)}
-                    ${this.generateSampleSection(data.Sample)}
-                    ${this.generateBufferSection(data.Buffer)}
-                    ${this.generateNMRTubeSection(data['NMR Tube'])}
-                    ${this.generateLabReferenceSection(data['Laboratory Reference'])}
-                    ${this.generateNotesSection(data.Notes)}
-                    ${this.generateMetadataSection(data.Metadata)}
+                    ${this.generateUsersSection(data.people?.users)}
+                    ${this.generateSampleSection(data.sample)}
+                    ${this.generateBufferSection(data.buffer)}
+                    ${this.generateNMRTubeSection(data.nmr_tube)}
+                    ${this.generateLabReferenceSection(data.reference)}
+                    ${this.generateNotesSection(data.notes)}
+                    ${this.generateMetadataSection(data.metadata)}
                     ${experimentsSection}
                 </div>
             </div>
@@ -815,32 +825,32 @@ class NMRSampleManager {
 
     generateSampleSection(sample) {
         if (!sample) return '';
-        
+
         let content = '';
-        
-        if (sample.Components && sample.Components.length > 0) {
+
+        if (sample.components && sample.components.length > 0) {
             const componentLines = [];
-            sample.Components.forEach(component => {
+            sample.components.forEach(component => {
                 let componentText = '';
-                if (component.Name) {
-                    componentText += this.escapeHtml(component.Name);
+                if (component.name) {
+                    componentText += this.escapeHtml(component.name);
                 }
-                if (component.Concentration !== undefined) {
-                    const concentration = `${component.Concentration || 0} ${component.Unit || ''}`;
+                if (component.concentration_or_amount !== undefined && component.concentration_or_amount !== null) {
+                    const concentration = `${component.concentration_or_amount} ${component.unit || ''}`.trim();
                     componentText += componentText ? ` (${concentration})` : concentration;
                 }
-                if (component['Isotopic labelling']) {
-                    componentText += ` - ${this.escapeHtml(component['Isotopic labelling'])}`;
+                if (component.isotopic_labelling) {
+                    componentText += ` - ${this.escapeHtml(component.isotopic_labelling)}`;
                 }
                 if (componentText) {
                     componentLines.push(componentText);
                 }
             });
-            content = '<ul style="margin: 0; padding-left: 1.2rem;">' + 
-                      componentLines.map(line => `<li>${line}</li>`).join('') + 
+            content = '<ul style="margin: 0; padding-left: 1.2rem;">' +
+                      componentLines.map(line => `<li>${line}</li>`).join('') +
                       '</ul>';
         }
-        
+
         return content ? `
             <div class="detail-row">
                 <div class="detail-label">Sample</div>
@@ -851,19 +861,19 @@ class NMRSampleManager {
 
     generateBufferSection(buffer) {
         if (!buffer) return '';
-        
+
         const componentsList = [];
         const otherInfo = [];
-        
+
         // Add components as bullet points
-        if (buffer.Components && buffer.Components.length > 0) {
-            buffer.Components.forEach(component => {
+        if (buffer.components && buffer.components.length > 0) {
+            buffer.components.forEach(component => {
                 let componentText = '';
                 if (component.name) {
                     componentText += this.escapeHtml(component.name);
                 }
-                if (component.Concentration !== undefined) {
-                    const concentration = `${component.Concentration || 0} ${component.Unit || ''}`;
+                if (component.concentration !== undefined && component.concentration !== null) {
+                    const concentration = `${component.concentration} ${component.unit || ''}`.trim();
                     componentText += componentText ? ` (${concentration})` : concentration;
                 }
                 if (componentText) {
@@ -871,22 +881,22 @@ class NMRSampleManager {
                 }
             });
         }
-        
+
         // Add other buffer info with bold labels
-        if (buffer.pH !== undefined && buffer.pH !== null) {
-            otherInfo.push(`<strong>pH:</strong> ${buffer.pH}`);
+        if (buffer.ph !== undefined && buffer.ph !== null) {
+            otherInfo.push(`<strong>pH:</strong> ${buffer.ph}`);
         }
-        
-        if (buffer['Chemical shift reference'] && buffer['Chemical shift reference'] !== 'none') {
-            let referenceText = `<strong>Chemical shift reference:</strong> ${this.escapeHtml(buffer['Chemical shift reference'])}`;
-            if (buffer['Reference concentration'] !== undefined && buffer['Reference unit']) {
-                referenceText += ` (${buffer['Reference concentration']} ${buffer['Reference unit']})`;
+
+        if (buffer.chemical_shift_reference && buffer.chemical_shift_reference !== 'none') {
+            let referenceText = `<strong>Chemical shift reference:</strong> ${this.escapeHtml(buffer.chemical_shift_reference)}`;
+            if (buffer.reference_concentration !== undefined && buffer.reference_unit) {
+                referenceText += ` (${buffer.reference_concentration} ${buffer.reference_unit})`;
             }
             otherInfo.push(referenceText);
         }
-        
-        if (buffer.Solvent) {
-            otherInfo.push(`<strong>Solvent:</strong> ${this.escapeHtml(buffer.Solvent)}`);
+
+        if (buffer.solvent) {
+            otherInfo.push(`<strong>Solvent:</strong> ${this.escapeHtml(buffer.solvent)}`);
         }
         
         if (componentsList.length === 0 && otherInfo.length === 0) return '';
@@ -913,32 +923,36 @@ class NMRSampleManager {
 
     generateNMRTubeSection(tube) {
         if (!tube) return '';
-        
+
         const contentLines = [];
-        
-        if (tube.Diameter) {
-            contentLines.push(`<strong>Diameter:</strong> ${this.escapeHtml(tube.Diameter)}`);
+
+        if (tube.diameter !== undefined && tube.diameter !== null) {
+            contentLines.push(`<strong>Diameter:</strong> ${tube.diameter} mm`);
         }
-        
-        if (tube.Type) {
-            contentLines.push(`<strong>Type:</strong> ${this.escapeHtml(tube.Type)}`);
+
+        if (tube.type) {
+            contentLines.push(`<strong>Type:</strong> ${this.escapeHtml(tube.type)}`);
         }
-        
-        if (tube['Sample Volume']) {
-            contentLines.push(`<strong>Volume:</strong> ${tube['Sample Volume']} µL`);
+
+        if (tube.sample_volume_uL !== undefined && tube.sample_volume_uL !== null) {
+            contentLines.push(`<strong>Volume:</strong> ${tube.sample_volume_uL} µL`);
         }
-        
-        if (tube['SampleJet Rack Position']) {
-            contentLines.push(`<strong>Rack Position:</strong> ${this.escapeHtml(tube['SampleJet Rack Position'])}`);
+
+        if (tube.sample_mass_mg !== undefined && tube.sample_mass_mg !== null) {
+            contentLines.push(`<strong>Mass:</strong> ${tube.sample_mass_mg} mg`);
         }
-        
-        if (tube['SampleJet Rack ID']) {
-            contentLines.push(`<strong>Rack ID:</strong> ${this.escapeHtml(tube['SampleJet Rack ID'])}`);
+
+        if (tube.rack_id) {
+            contentLines.push(`<strong>Rack ID:</strong> ${this.escapeHtml(tube.rack_id)}`);
         }
-        
+
+        if (tube.rotor_serial) {
+            contentLines.push(`<strong>Rotor serial:</strong> ${this.escapeHtml(tube.rotor_serial)}`);
+        }
+
         return contentLines.length > 0 ? `
             <div class="detail-row">
-                <div class="detail-label">NMR Tube</div>
+                <div class="detail-label">NMR Tube / Rotor</div>
                 <div class="detail-content">${contentLines.join('<br>')}</div>
             </div>
         ` : '';
@@ -947,17 +961,17 @@ class NMRSampleManager {
 
     generateLabReferenceSection(labRef) {
         if (!labRef) return '';
-        
+
         const contentLines = [];
-        
-        if (labRef['Labbook Entry']) {
-            contentLines.push(`<strong>Labbook:</strong> ${this.escapeHtml(labRef['Labbook Entry'])}`);
+
+        if (labRef.labbook_entry) {
+            contentLines.push(`<strong>Labbook:</strong> ${this.escapeHtml(labRef.labbook_entry)}`);
         }
-        
-        if (labRef['Experiment ID']) {
-            contentLines.push(`<strong>Experiment:</strong> ${this.escapeHtml(labRef['Experiment ID'])}`);
+
+        if (labRef.sample_id) {
+            contentLines.push(`<strong>Sample ID:</strong> ${this.escapeHtml(labRef.sample_id)}`);
         }
-        
+
         return contentLines.length > 0 ? `
             <div class="detail-row">
                 <div class="detail-label">Lab Reference</div>
@@ -1031,7 +1045,7 @@ class NMRSampleManager {
             const timelineData = await this.fileManager.generateTimelineData();
             
             // Get sample lifecycle timestamps
-            const metadata = sampleData.Metadata || {};
+            const metadata = sampleData.metadata || {};
             const sampleCreated = metadata.created_timestamp ? new Date(metadata.created_timestamp) : null;
             const sampleEjected = metadata.ejected_timestamp ? new Date(metadata.ejected_timestamp) : null;
             

@@ -79,7 +79,7 @@ class FileManager {
     }
 
     /**
-     * Read a sample file
+     * Read a sample file, automatically migrating to current schema version
      */
     async readSample(filename) {
         const fileHandle = this.sampleFiles.get(filename);
@@ -90,11 +90,22 @@ class FileManager {
         try {
             const file = await fileHandle.getFile();
             const text = await file.text();
-            return JSON.parse(text);
+            const data = JSON.parse(text);
+            if (typeof updateToLatestSchema === 'function' && this._migrations) {
+                return updateToLatestSchema(data, this._migrations);
+            }
+            return data;
         } catch (error) {
             console.error(`Error reading sample ${filename}:`, error);
             throw error;
         }
+    }
+
+    /**
+     * Store loaded migrations for use during readSample
+     */
+    setMigrations(migrations) {
+        this._migrations = migrations;
     }
 
     /**
@@ -107,16 +118,16 @@ class FileManager {
 
         try {
             // Add metadata if not present
-            if (!data.Metadata) {
-                data.Metadata = {};
+            if (!data.metadata) {
+                data.metadata = {};
             }
-            
+
             const now = new Date().toISOString();
-            if (!data.Metadata.created_timestamp) {
-                data.Metadata.created_timestamp = now;
+            if (!data.metadata.created_timestamp) {
+                data.metadata.created_timestamp = now;
             }
-            data.Metadata.modified_timestamp = now;
-            data.Metadata.schema_version = "0.0.1";
+            data.metadata.modified_timestamp = now;
+            data.metadata.schema_version = "0.1.0";
 
             const fileHandle = await this.currentDirectoryHandle.getFileHandle(filename, {
                 create: true
@@ -160,8 +171,8 @@ class FileManager {
     async getSampleStatus(filename) {
         try {
             const data = await this.readSample(filename);
-            const metadata = data.Metadata || {};
-            
+            const metadata = data.metadata || {};
+
             if (metadata.ejected_timestamp) {
                 return 'ejected';
             } else if (metadata.created_timestamp) {
@@ -180,16 +191,16 @@ class FileManager {
     async ejectSample(filename) {
         try {
             const data = await this.readSample(filename);
-            if (!data.Metadata) {
-                data.Metadata = {};
+            if (!data.metadata) {
+                data.metadata = {};
             }
-            
+
             // Don't update timestamp if sample is already ejected
-            if (data.Metadata.ejected_timestamp) {
+            if (data.metadata.ejected_timestamp) {
                 return true; // Already ejected, do nothing
             }
-            
-            data.Metadata.ejected_timestamp = new Date().toISOString();
+
+            data.metadata.ejected_timestamp = new Date().toISOString();
             // Skip callback here since we'll call scanForSamples manually
             await this.writeSample(filename, data, true);
             
@@ -206,13 +217,13 @@ class FileManager {
     async duplicateSample(sourceFilename, newLabel) {
         try {
             const sourceData = await this.readSample(sourceFilename);
-            
+
             // Remove metadata to create fresh timestamps
-            delete sourceData.Metadata;
-            
+            delete sourceData.metadata;
+
             // Update sample label if provided
-            if (newLabel && sourceData.Sample) {
-                sourceData.Sample.Label = newLabel;
+            if (newLabel && sourceData.sample) {
+                sourceData.sample.label = newLabel;
             }
             
             const newFilename = this.generateFilename(newLabel || 'DuplicatedSample');
@@ -562,8 +573,8 @@ class FileManager {
         for (const filename of this.getSampleFilenames()) {
             try {
                 const sampleData = await this.readSample(filename);
-                const metadata = sampleData.Metadata || {};
-                const sampleLabel = sampleData.Sample?.Label || 'Unknown';
+                const metadata = sampleData.metadata || {};
+                const sampleLabel = sampleData.sample?.label || 'Unknown';
 
                 // Sample creation event
                 if (metadata.created_timestamp) {

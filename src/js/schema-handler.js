@@ -6,13 +6,13 @@
 class SchemaHandler {
     constructor() {
         this.schema = null;
-        this.currentVersion = '0.0.1';
+        this.currentVersion = '0.1.0';
     }
 
     /**
      * Load schema from embedded data
      */
-    async loadSchema(version = this.currentVersion) {
+    async loadSchema() {
         try {
             if (window.EMBEDDED_SCHEMA) {
                 this.schema = window.EMBEDDED_SCHEMA;
@@ -40,9 +40,7 @@ class SchemaHandler {
         if (!this.schema) {
             throw new Error('Schema not loaded');
         }
-        
-        // Basic validation - in a real implementation you'd use Ajv or similar
-        // For now, just check that the data is an object
+
         return typeof data === 'object' && data !== null;
     }
 
@@ -54,31 +52,31 @@ class SchemaHandler {
             throw new Error('Schema not loaded');
         }
 
-        // Create a minimal valid structure based on our schema
         return {
-            Users: [],
-            Sample: {
-                Label: '',
-                Components: []
+            people: {
+                users: []
             },
-            Buffer: {
-                Components: [],
-                pH: null,
-                Solvent: '10% D2O'
+            sample: {
+                label: '',
+                physical_form: '',
+                components: []
             },
-            'NMR Tube': {
-                'Sample Volume': null,
-                Diameter: '5 mm',
-                Type: 'regular',
-                'SampleJet Rack Position': '',
-                'SampleJet Rack ID': ''
+            buffer: {
+                components: [],
+                ph: null,
+                solvent: ''
             },
-            'Laboratory Reference': {
-                'Labbook Entry': '',
-                'Experiment ID': ''
+            nmr_tube: {
+                sample_volume_uL: null,
+                diameter: null,
+                type: ''
             },
-            Notes: '',
-            Metadata: {
+            reference: {
+                labbook_entry: '',
+                sample_id: ''
+            },
+            notes: '',
+            metadata: {
                 schema_version: this.currentVersion
             }
         };
@@ -89,106 +87,111 @@ class SchemaHandler {
      */
     getUISchema() {
         return {
-            Users: {
-                "ui:options": {
-                    orderable: false
+            people: {
+                users: {
+                    "ui:options": { orderable: false },
+                    items: {
+                        "ui:placeholder": "Name or username"
+                    }
+                },
+                groups: {
+                    "ui:options": { orderable: false },
+                    items: {
+                        "ui:placeholder": "Group surname"
+                    }
                 }
             },
-            Sample: {
-                Label: {
+            sample: {
+                label: {
                     "ui:placeholder": "Enter a descriptive sample name"
                 },
-                Components: {
-                    "ui:options": {
-                        orderable: false
-                    },
+                physical_form: {
+                    "ui:widget": "select"
+                },
+                components: {
+                    "ui:options": { orderable: false },
                     items: {
-                        Name: {
+                        name: {
                             "ui:placeholder": "e.g., MyProtein, BSA, etc."
                         },
-                        'Isotopic labelling': {
+                        isotopic_labelling: {
                             "ui:widget": "select"
                         },
-                        'Custom labelling': {
+                        custom_labelling: {
                             "ui:widget": "textarea",
                             "ui:placeholder": "Describe custom labelling scheme"
                         },
-                        Concentration: {
+                        concentration_or_amount: {
                             "ui:placeholder": "Numeric value"
                         },
-                        Unit: {
+                        unit: {
                             "ui:widget": "select"
                         }
                     }
                 }
             },
-            Buffer: {
-                Components: {
-                    "ui:options": {
-                        orderable: false
-                    },
+            buffer: {
+                components: {
+                    "ui:options": { orderable: false },
                     items: {
                         name: {
                             "ui:placeholder": "e.g., Tris-HCl, NaCl, EDTA"
                         },
-                        Concentration: {
+                        concentration: {
                             "ui:placeholder": "Numeric value"
                         },
-                        Unit: {
+                        unit: {
                             "ui:widget": "select"
                         }
                     }
                 },
-                pH: {
+                ph: {
                     "ui:placeholder": "e.g., 7.4"
                 },
-                'Chemical shift reference': {
+                chemical_shift_reference: {
                     "ui:widget": "select"
                 },
-                'Reference concentration': {
+                reference_concentration: {
                     "ui:placeholder": "e.g., 0.1"
                 },
-                'Reference unit': {
+                reference_unit: {
                     "ui:widget": "select"
                 },
-                Solvent: {
+                solvent: {
                     "ui:widget": "select"
                 },
-                'Custom solvent': {
+                custom_solvent: {
                     "ui:widget": "textarea",
                     "ui:placeholder": "Describe custom solvent composition"
                 }
             },
-            'NMR Tube': {
-                'Sample Volume': {
+            nmr_tube: {
+                sample_volume_uL: {
                     "ui:placeholder": "e.g., 600"
                 },
-                Diameter: {
+                sample_mass_mg: {
+                    "ui:placeholder": "e.g., 10"
+                },
+                diameter: {
+                    "ui:placeholder": "e.g., 5"
+                },
+                type: {
                     "ui:widget": "select"
-                },
-                Type: {
-                    "ui:widget": "select"
-                },
-                'SampleJet Rack Position': {
-                    "ui:placeholder": "e.g., A3, G11"
-                },
-                'SampleJet Rack ID': {
-                    "ui:placeholder": "e.g., Rack-001"
                 }
             },
-            'Laboratory Reference': {
-                'Labbook Entry': {
+            reference: {
+                labbook_entry: {
                     "ui:placeholder": "e.g., LB2025-08-001"
                 },
-                'Experiment ID': {
+                sample_id: {
                     "ui:placeholder": "e.g., EXP-001"
                 }
             },
-            Notes: {
+            notes: {
                 "ui:widget": "textarea",
                 "ui:placeholder": "Additional notes and observations"
             },
-            Metadata: {
+            metadata: {
                 "ui:widget": "hidden"
             }
         };
@@ -198,21 +201,22 @@ class SchemaHandler {
      * Process form data before saving
      */
     processFormData(formData) {
-        // Clean up empty arrays and objects
         const cleaned = JSON.parse(JSON.stringify(formData));
-        
-        // Remove empty components arrays
-        if (cleaned.Sample && cleaned.Sample.Components && cleaned.Sample.Components.length === 0) {
-            delete cleaned.Sample.Components;
-        }
-        
-        if (cleaned.Buffer && cleaned.Buffer.Components && cleaned.Buffer.Components.length === 0) {
-            delete cleaned.Buffer.Components;
+
+        if (cleaned.sample?.components?.length === 0) {
+            delete cleaned.sample.components;
         }
 
-        // Remove empty Users array
-        if (cleaned.Users && cleaned.Users.length === 0) {
-            delete cleaned.Users;
+        if (cleaned.buffer?.components?.length === 0) {
+            delete cleaned.buffer.components;
+        }
+
+        if (cleaned.people?.users?.length === 0) {
+            delete cleaned.people.users;
+        }
+
+        if (cleaned.people?.groups?.length === 0) {
+            delete cleaned.people.groups;
         }
 
         return cleaned;
