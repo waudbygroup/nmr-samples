@@ -48,7 +48,7 @@ A standalone web application for managing NMR sample metadata in TopSpin environ
 nmr-samples/
 ├── CLAUDE.md                    # This architecture document
 ├── src/
-│   ├── index.html              # Main web application (template with {{SCHEMA}})
+│   ├── index.html              # Main web application (template with !!!SCHEMA!!!)
 │   ├── installation.html       # Installation documentation
 │   ├── usage.html              # Usage documentation
 │   ├── js/
@@ -222,7 +222,7 @@ os.system("ej")
 The project uses a GitHub Actions build system that:
 1. **Single Source of Truth**: Schema exists only in `src/schemas/current.json`
 2. **Dual Deployment**: Creates both online and offline versions automatically
-3. **Template Processing**: Replaces `{{SCHEMA}}` placeholder in source files
+3. **Template Processing**: Replaces `!!!SCHEMA!!!` placeholder in source files
 4. **Zero Local Setup**: No build tools required for development
 
 ### Development Workflow

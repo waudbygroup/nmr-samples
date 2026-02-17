@@ -32,7 +32,7 @@ jobs:
           # Copy all source files
           cp -r src/* docs/
 
-          # Replace {{SCHEMA}} and {{MIGRATIONS}} with external loading using Python
+          # Replace !!!SCHEMA!!! and !!!MIGRATIONS!!! with external loading using Python
           python3 << 'EOF'
           with open('docs/index.html', 'r') as f:
               content = f.read()
@@ -55,8 +55,8 @@ jobs:
           # Migrations will be loaded from external URL (not embedded for online version)
           migrations_comment = '// Migrations loaded from external URL via loadMigrations()'
 
-          content = content.replace('{{SCHEMA}}', schema_loader)
-          content = content.replace('{{MIGRATIONS}}', migrations_comment)
+          content = content.replace('!!!SCHEMA!!!', schema_loader)
+          content = content.replace('!!!MIGRATIONS!!!', migrations_comment)
 
           with open('docs/index.html', 'w') as f:
               f.write(content)
@@ -67,7 +67,7 @@ jobs:
           # Copy all source files to download directory
           cp -r src/* docs/download/
 
-          # Replace {{SCHEMA}} and {{MIGRATIONS}} with embedded data using Python
+          # Replace !!!SCHEMA!!! and !!!MIGRATIONS!!! with embedded data using Python
           python3 << 'EOF'
           import json
 
@@ -88,9 +88,9 @@ jobs:
           migrations_code = f'window.EMBEDDED_MIGRATIONS = {json.dumps(migrations)};'
 
           # Replace placeholders
-          content = content.replace('{{SCHEMA}}', schema_code)
-          if '{{MIGRATIONS}}' in content:
-              content = content.replace('{{MIGRATIONS}}', migrations_code)
+          content = content.replace('!!!SCHEMA!!!', schema_code)
+          if '!!!MIGRATIONS!!!' in content:
+              content = content.replace('!!!MIGRATIONS!!!', migrations_code)
 
           # Write back
           with open('docs/download/index.html', 'w') as f:

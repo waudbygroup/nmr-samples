@@ -209,12 +209,12 @@ The migration tool integrates with the File System Access API workflow:
 The GitHub Actions workflow ([.github/workflows/build.yml](.github/workflows/build.yml)) handles schema and migration embedding:
 
 **Online Version** (`docs/index.html`):
-- `{{SCHEMA}}` → External fetch from `schemas/current/schema.json`
-- `{{MIGRATIONS}}` → Comment (loaded via `loadMigrations()`)
+- `!!!SCHEMA!!!` → External fetch from `schemas/current/schema.json`
+- `!!!MIGRATIONS!!!` → Comment (loaded via `loadMigrations()`)
 
 **Offline Version** (`docs/download/index.html`):
-- `{{SCHEMA}}` → Embedded `window.EMBEDDED_SCHEMA`
-- `{{MIGRATIONS}}` → Embedded `window.EMBEDDED_MIGRATIONS`
+- `!!!SCHEMA!!!` → Embedded `window.EMBEDDED_SCHEMA`
+- `!!!MIGRATIONS!!!` → Embedded `window.EMBEDDED_MIGRATIONS`
 
 ## Form Rendering Changes
 
