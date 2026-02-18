@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Installation - NMR Sample Manager</title>
+    <link rel="stylesheet" href="css/docs.css">
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>NMR Sample Manager</h1>
+            <nav class="nav">
+                <a href="index.html" class="nav-link">Application</a>
+                <a href="getting-started.html" class="nav-link active">Getting started</a>
+                <a href="https://www.github.com/nmr-samples/" class="nav-link">Ecosystem</a>
+                <a href="https://waudbylab.org/" class="nav-link">Waudby Group</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="content">
+        <h1>Getting Started</h1>
+
+        <p>The NMR Sample Manager runs in your browser. All data stays on your computer —
+            there is no server and nothing is uploaded. You need <strong>Chrome, Chromium, or
+                Edge</strong> (the app uses the File System Access API, which other browsers don't
+            support).</p>
+
+        <h2>Online Access</h2>
+
+        <p>Open <a href="index.html">the application</a> and grant file system permissions
+            when prompted. That's it.</p>
+
+        <h2>Offline Access</h2>
+
+        <p>Download <a href="download/nmr-samples.zip">nmr-samples.zip</a>, extract it,
+            and open <code>index.html</code> in Chrome or Edge. The app works identically
+            to the online version.</p>
+
+        <h2>Setting Up Directories</h2>
+
+        <p>Click <strong>Set</strong> next to "Root:" and select your main NMR data folder
+            (e.g. <code>/data/nmr</code> or <code>C:\Bruker\TopSpin4\data</code>). Then click
+            <strong>Browse</strong> to navigate to a specific experiment folder. The app scans
+            the folder for existing sample metadata and experiment directories.
+        </p>
+
+        <h2>Creating a Sample</h2>
+
+        <p>Click <strong>New Sample</strong> to open the annotation form. All fields are
+            optional — fill in what matters for your work. You can record information about
+            users, sample components (name, concentration, isotopic labelling), buffer
+            conditions (pH, components, solvent), NMR tube details, and laboratory references.
+            Click <strong>Save</strong> or press Enter to store the metadata as a JSON file in
+            the experiment directory.</p>
+
+        <h2>Editing and Duplicating</h2>
+
+        <p>Select a sample and click <strong>Edit</strong> to modify it. Click
+            <strong>Duplicate</strong> to copy it as a template for a related sample — useful
+            for titration series or other experiments where only a few parameters change.
+        </p>
+
+        <h2>Ejecting Samples</h2>
+
+        <p>Click <strong>Eject</strong> to timestamp when a sample was removed from the
+            spectrometer. This marks the end of the sample's active period and helps track
+            what's currently loaded.</p>
+
+        <h2>Timeline</h2>
+
+        <p>Click <strong>Show timeline</strong> to see the chronological history of all
+            samples in the current experiment folder, including when they were created,
+            modified, and ejected.</p>
+
+        <h2>File Storage</h2>
+
+        <p>Sample metadata is stored as human-readable JSON files alongside your experiment
+            data, with filenames like <code>2025-10-23_143022_lysozyme.json</code>. These
+            files can be opened in any text editor and work well with version control. They
+            follow a shared <a href="https://github.com/nmr-samples/schema">open schema</a>,
+            so they're compatible with the
+            <a href="https://nmr-samples.github.io/topspin/">TopSpin integration</a>,
+            <a href="https://github.com/waudbygroup/NMRTools.jl">NMRTools.jl</a>, and other
+            tools in the ecosystem.
+        </p>
+
+    </div>
+</body>
+
+</html>
