@@ -273,7 +273,7 @@ body {
 
 /* Welcome Message */
 .welcome-message {
-    text-align: center;
+    text-align: justify;
     padding: 3rem 2rem;
     color: #6c757d;
 }

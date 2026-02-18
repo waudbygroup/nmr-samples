@@ -6,14 +6,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A standalone web application for managing NMR sample metadata in TopSpin environments. The tool provides an intuitive interface for recording, editing, and managing sample information while integrating seamlessly with TopSpin workflows.
+A standalone web application for managing NMR sample metadata in Topspin environments. The tool provides an intuitive interface for recording, editing, and managing sample information while integrating seamlessly with Topspin workflows.
 
 ## Architecture
 
 ### Core Design Principles
 
 - **Standalone web application**: No servers or complex installation required
-- **TopSpin integration**: Simple Python scripts for workflow integration
+- **Topspin integration**: Simple Python scripts for workflow integration
 - **Schema-driven**: JSON Schema defines data structure and validation
 - **Human-readable storage**: JSON files for metadata persistence
 - **Version control friendly**: Text-based storage with clear schema versioning
@@ -34,7 +34,7 @@ A standalone web application for managing NMR sample metadata in TopSpin environ
 │  ├─ JSON files (sample metadata)             │
 │  └─ Favourites/templates                     │
 │                                               │
-├─ TopSpin Integration ───────────────────────┤
+├─ Topspin Integration ───────────────────────┤
 │  ├─ aij/aej commands (Python scripts)        │
 │  ├─ Directory navigation                     │
 │  └─ Sample logging                           │
@@ -75,7 +75,7 @@ nmr-samples/
 │   ├── aij.py                  # Annotated inject command
 │   ├── aej.py                  # Annotated eject command
 │   ├── sample_launcher.py      # Main launcher script
-│   └── install_commands.sh     # TopSpin command installation
+│   └── install_commands.sh     # Topspin command installation
 
 ```
 
@@ -147,7 +147,7 @@ nmr-samples/
 
 ### Web Application Features
 
-- **Folder browser**: Select TopSpin dataset directories
+- **Folder browser**: Select Topspin dataset directories
 - **Sample list**: Browse existing samples with timestamps
 - **Form interface**: Auto-generated from JSON Schema
 - **Search/filter**: Find samples by name, date, user
@@ -163,7 +163,7 @@ nmr-samples/
 - **Conditional fields**: Show/hide based on selections
 - **Array handling**: Dynamic addition of sample components
 
-## TopSpin Integration
+## Topspin Integration
 
 We will develop this later once the core system is working.
 
@@ -187,10 +187,10 @@ os.system("ej")
 
 ### Integration Points
 
-- **Directory detection**: Automatic navigation to current TopSpin dataset
+- **Directory detection**: Automatic navigation to current Topspin dataset
 - **Sample logging**: Timestamped injection/ejection events
-- **Workflow integration**: Seamless integration with existing TopSpin commands
-- **No TopSpin modification**: Pure additive functionality
+- **Workflow integration**: Seamless integration with existing Topspin commands
+- **No Topspin modification**: Pure additive functionality
 
 ## Technical Implementation
 
@@ -248,8 +248,8 @@ The project uses a GitHub Actions build system that:
 4. Set root directory to your NMR data folder
 5. Start managing samples immediately
 
-### Integration with TopSpin (Ready for Implementation)
-The application is fully prepared for TopSpin integration:
+### Integration with Topspin (Ready for Implementation)
+The application is fully prepared for Topspin integration:
 - URL parameters supported: `?folder=path&action=inject|eject`
 - Permission handling implemented
 - Automatic sample management ready
@@ -282,10 +282,10 @@ The application is fully prepared for TopSpin integration:
 - **Sample status tracking** - Active/ejected status with timestamps
 - **Auto-ejection workflow** - Previous samples ejected before new injection
 - **Sample duplication** - Copy existing samples for titration series
-- **URL parameter handling** - Direct navigation from TopSpin integration
+- **URL parameter handling** - Direct navigation from Topspin integration
 - **Persistent storage** - Root directory and settings maintained across sessions
 
-#### ✅ **TopSpin Integration Ready (Phase 2 - READY)**
+#### ✅ **Topspin Integration Ready (Phase 2 - READY)**
 - **URL-based navigation** - `?folder=path&action=inject|eject` support
 - **Automatic ejection handling** - Most recent sample ejection via URL
 - **Permission management** - Graceful handling of file system permissions
@@ -329,7 +329,7 @@ The current schema defines these sections (all optional for ease of adoption):
 - [x] File operations - **File System Access API integrated**
 - [x] Schema validation - **Real-time validation active**
 
-### ✅ **Phase 2 (TopSpin Integration) - MOSTLY COMPLETE**
+### ✅ **Phase 2 (Topspin Integration) - MOSTLY COMPLETE**
 - [x] URL-based navigation - **Direct folder access implemented**
 - [x] Sample ejection tracking - **Automatic timestamping active**
 - [x] Permission handling - **Graceful degradation implemented**
@@ -344,9 +344,9 @@ The current schema defines these sections (all optional for ease of adoption):
 - [ ] Export capabilities - **Planned for future iteration**
 
 ### 🎯 **Next Priorities (Phase 2 Completion)**
-- [ ] Create Python TopSpin integration scripts (`aij.py`, `aej.py`)
+- [ ] Create Python Topspin integration scripts (`aij.py`, `aej.py`)
 - [ ] Implement favourites/templates system
-- [ ] Add installation script for TopSpin commands
+- [ ] Add installation script for Topspin commands
 
 ### 📋 **Future Enhancements (Phases 4-5)**
 
@@ -371,7 +371,7 @@ The current schema defines these sections (all optional for ease of adoption):
 4. **Future ready**: ✅ Foundation established for BMRB deposition automation
 
 ### 🎯 **IN PROGRESS** 
-2. **TopSpin integration**: 🔄 URL-based navigation ready, Python scripts needed
+2. **Topspin integration**: 🔄 URL-based navigation ready, Python scripts needed
 
 ### 📋 **Current Achievements**
 - **Professional UI**: Bootstrap-based responsive interface
@@ -407,6 +407,6 @@ The NMR Sample Manager has exceeded initial success criteria and is **production
 4. **Manage Samples**: Use "New Sample", "Duplicate", "Edit", or "Eject" buttons
 5. **View Timeline**: Click "Show timeline" to see complete experiment history
 
-### For TopSpin Integration (Ready)
+### For Topspin Integration (Ready)
 - Application supports URL parameters: `file:///path/to/src/index.html?folder=/path/to/experiment&action=inject`
 - Next step: Implement Python scripts that launch the application with appropriate parameters
