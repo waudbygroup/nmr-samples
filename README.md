@@ -1,10 +1,10 @@
 # NMR Sample Manager
 
-A standalone web application for managing NMR sample metadata in Topspin environments.
+A standalone web application for managing NMR sample metadata in TopSpin environments.
 
 NMR workflows focus on data acquisition and processing, but sample tracking has been a longstanding blind spot. Bruker software manages *experiments* effectively, but provides no systematic way to record or retrieve information about *samples* -- e.g. protein concentrations, buffer compositions, isotopic labelling schemes, chemical shift referencing, NMR tube types. This often causes problems when looking back over old data or preparing data for repository submission.
 
-Here we describe a simple JSON schema for recording sample metadata, creating a lightweight, parallel system that captures sample information alongside Topspin workflows.
+Here we describe a simple JSON schema for recording sample metadata, creating a lightweight, parallel system that captures sample information alongside TopSpin workflows.
 
 ## Quick Start
 
