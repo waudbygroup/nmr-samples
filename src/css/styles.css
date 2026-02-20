@@ -50,27 +50,31 @@ body {
 .app-nav {
     display: flex;
     gap: 4px;
+    flex-wrap: wrap;
+    align-items: center;
 }
 
 .app-nav .nav-link {
     color: #76BDDA;
     text-decoration: none;
-    padding: 5px 12px;
+    padding: 6px 14px;
     border-radius: 4px;
     font-size: 0.875rem;
     font-weight: 500;
     transition: background 0.15s, color 0.15s;
     white-space: nowrap;
-}
-
-.app-nav .nav-link.active {
-    background: #fff;
-    color: #303D4F;
+    line-height: 1;
 }
 
 .app-nav .nav-link:hover {
     background: rgba(118, 189, 218, 0.15);
     color: #fff;
+}
+
+.app-nav .nav-link.active {
+    background: #fff;
+    color: #303D4F;
+    font-weight: 600;
 }
 
 /* Main Content Layout */
