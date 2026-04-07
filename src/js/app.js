@@ -64,13 +64,13 @@ class NMRSampleManager {
         const urlParams = new URLSearchParams(window.location.search);
         const folderParam = urlParams.get('folder');
         const actionParam = urlParams.get('action');
-        
+
         if (folderParam) {
             if (this.fileManager.rootDirectoryHandle) {
                 // Strip root directory path from folder param if present
                 let relativePath = folderParam;
                 const rootName = this.fileManager.rootDirectoryHandle.name;
-                
+
                 // Handle different path formats: /Users/chris/NMR/spec/exp vs spec/exp
                 if (folderParam.includes(rootName)) {
                     const rootIndex = folderParam.indexOf(rootName);
@@ -80,14 +80,14 @@ class NMRSampleManager {
                         this.setStoredRootPath(fullRootPath);
                         // Update the display immediately
                         this.handleRootDirectoryChanged(rootName);
-                        
+
                         // Extract everything after the root directory name
                         relativePath = folderParam.substring(rootIndex + rootName.length);
                         // Remove leading slash if present
                         relativePath = relativePath.replace(/^\/+/, '');
                     }
                 }
-                
+
                 if (relativePath) {
                     // Check if we have permissions first
                     try {
@@ -125,7 +125,7 @@ class NMRSampleManager {
         if (welcomeMessage) {
             let actionText = '';
             let buttonText = 'Grant Access & Navigate';
-            
+
             if (actionParam === 'eject') {
                 actionText = ' and eject the most recent sample';
                 buttonText = 'Grant Access & Navigate + Eject';
@@ -133,7 +133,7 @@ class NMRSampleManager {
                 actionText = ' and prepare for sample injection';
                 buttonText = 'Grant Access & Navigate + Inject';
             }
-            
+
             welcomeMessage.innerHTML = `
                 <h3>Navigate to Folder</h3>
                 <p>Click the button below to navigate to: <strong>${this.escapeHtml(relativePath)}</strong>${actionText}</p>
@@ -141,7 +141,7 @@ class NMRSampleManager {
                     ${buttonText}
                 </button>
             `;
-            
+
             // Add click handler for the navigation button
             document.getElementById('navigate-to-url-folder').addEventListener('click', async () => {
                 try {
@@ -181,14 +181,14 @@ class NMRSampleManager {
 
     async ejectMostRecentSample() {
         const sampleFiles = this.fileManager.getSampleFilenames();
-        
+
         if (sampleFiles.length === 0) {
             throw new Error('No samples found in the current directory');
         }
 
         // Get the most recent sample (last in the alphabetically sorted list)
         const mostRecentSample = sampleFiles[sampleFiles.length - 1];
-        
+
         // Check if it's already ejected
         const status = await this.fileManager.getSampleStatus(mostRecentSample);
         if (status === 'ejected') {
@@ -198,16 +198,16 @@ class NMRSampleManager {
         // Eject the sample
         console.log(`Ejecting most recent sample: ${mostRecentSample}`);
         await this.fileManager.ejectSample(mostRecentSample);
-        
+
         // Refresh the sample list to update status
         await this.fileManager.scanForSamples();
-        
+
         this.showSuccess(`Successfully ejected most recent sample: ${mostRecentSample}`);
     }
 
     async handleInjectAction() {
         const sampleFiles = this.fileManager.getSampleFilenames();
-        
+
         if (sampleFiles.length === 0) {
             // No samples exist, start creating a new sample
             console.log('No samples found, starting new sample creation');
@@ -225,7 +225,7 @@ class NMRSampleManager {
         if (welcomeMessage) {
             const sampleCount = sampleFiles.length;
             const mostRecentSample = sampleFiles[sampleFiles.length - 1];
-            
+
             welcomeMessage.innerHTML = `
                 <h3>Sample Injection</h3>
                 <p>Found ${sampleCount} existing sample${sampleCount > 1 ? 's' : ''} in this folder.</p>
@@ -243,7 +243,7 @@ class NMRSampleManager {
                     <em>Tip: You can also select any sample from the list on the left and use the "Duplicate" button.</em>
                 </p>
             `;
-            
+
             // Add click handlers for the action buttons
             document.getElementById('inject-new-sample').addEventListener('click', () => {
                 console.log('User chose to create new sample for injection');
@@ -251,7 +251,7 @@ class NMRSampleManager {
                 this.createNewSample(); // This will handle operation tracking internally
                 welcomeMessage.innerHTML = '<p class="form-placeholder">Creating new sample...</p>';
             });
-            
+
             document.getElementById('inject-duplicate-sample').addEventListener('click', () => {
                 console.log('User chose to duplicate most recent sample for injection');
                 // Set the selected file and duplicate directly
@@ -266,7 +266,7 @@ class NMRSampleManager {
     async ejectAllPreviousSamples() {
         const sampleFiles = this.fileManager.getSampleFilenames();
         let ejectedCount = 0;
-        
+
         for (const sampleFile of sampleFiles) {
             try {
                 const status = await this.fileManager.getSampleStatus(sampleFile);
@@ -279,7 +279,7 @@ class NMRSampleManager {
                 console.error(`Error auto-ejecting sample ${sampleFile}:`, error);
             }
         }
-        
+
         if (ejectedCount > 0) {
             console.log(`Auto-ejected ${ejectedCount} previous sample${ejectedCount > 1 ? 's' : ''}`);
             // Refresh the sample list to show updated statuses
@@ -373,7 +373,7 @@ class NMRSampleManager {
         // Extract just the final folder name from the full path
         const finalFolderName = directoryName ? directoryName.split('/').pop() : 'No folder selected';
         document.getElementById('current-folder').textContent = finalFolderName;
-        
+
         // Enable timeline button when directory is selected
         const timelineBtn = document.getElementById('show-timeline');
         timelineBtn.disabled = !directoryName;
@@ -382,10 +382,10 @@ class NMRSampleManager {
     async handleSamplesChanged(sampleFilenames) {
         console.log('Samples changed:', sampleFilenames);
         const sampleList = document.getElementById('sample-list');
-        
+
         // Clear existing content completely
         sampleList.innerHTML = '';
-        
+
         // Clear current selection if the selected file is no longer in the list
         if (this.selectedSampleFile && !sampleFilenames.includes(this.selectedSampleFile)) {
             this.selectedSampleFile = null;
@@ -430,7 +430,7 @@ class NMRSampleManager {
     async createSampleListItem(filename) {
         const item = document.createElement('div');
         item.className = 'sample-item';
-        
+
         // Make entire item clickable
         item.addEventListener('click', async (e) => {
             // Don't trigger if clicking on the radio button itself
@@ -442,7 +442,7 @@ class NMRSampleManager {
                 }
             }
         });
-        
+
         const radio = document.createElement('input');
         radio.type = 'radio';
         radio.name = 'selected-sample';
@@ -456,17 +456,17 @@ class NMRSampleManager {
 
         const statusSpan = document.createElement('span');
         statusSpan.className = 'sample-status';
-        
+
         try {
             // Load sample data to get the label
             const sampleData = await this.fileManager.readSample(filename);
             const sampleLabel = sampleData.sample?.label || 'Untitled Sample';
-            
+
             // Truncate long labels (keep first 25 characters + ellipsis)
             const displayLabel = sampleLabel.length > 25 ? sampleLabel.substring(0, 25) + '...' : sampleLabel;
             labelSpan.textContent = displayLabel;
             labelSpan.title = sampleLabel; // Show full label on hover
-            
+
             const status = await this.fileManager.getSampleStatus(filename);
             // Only show EJECTED status, hide others
             if (status === 'ejected') {
@@ -492,12 +492,12 @@ class NMRSampleManager {
     async selectSample(filename) {
         console.log('Selecting sample:', filename);
         this.selectedSampleFile = filename;
-        
+
         // Update UI selection
         document.querySelectorAll('.sample-item').forEach(item => {
             item.classList.remove('selected');
         });
-        
+
         const selectedRadio = document.querySelector(`input[value="${filename}"]`);
         if (selectedRadio) {
             selectedRadio.checked = true;
@@ -505,17 +505,17 @@ class NMRSampleManager {
         }
 
         this.updateButtonStates(true);
-        
+
         // Show loading message immediately - clear React first
         this.showLoadingMessage();
-        
+
         // Load and display sample data in read-only mode
         await this.loadAndDisplaySample(filename);
     }
-    
+
     showLoadingMessage() {
         const formContainer = document.getElementById('sample-form');
-        
+
         // Always unmount React components first
         if (this.currentReactRoot) {
             try {
@@ -525,7 +525,7 @@ class NMRSampleManager {
             }
             this.currentReactRoot = null;
         }
-        
+
         formContainer.innerHTML = '<p class="form-placeholder">Loading sample data...</p>';
     }
 
@@ -540,7 +540,7 @@ class NMRSampleManager {
             console.error('Error loading sample for display:', error);
             console.error('Error details:', error.message);
             console.error('Error stack:', error.stack);
-            
+
             // Clear React components first, then show error
             const formContainer = document.getElementById('sample-form');
             if (this.currentReactRoot) {
@@ -571,15 +571,15 @@ class NMRSampleManager {
             // Set operation to prevent auto-selection during the entire process
             this.currentOperation = 'creating-new';
             this.selectedSampleFile = null;
-            
+
             // Auto-eject all previous samples before creating new one
             await this.ejectAllPreviousSamples();
-            
+
             const defaultData = this.schemaHandler.createDefaultData();
             console.log('Default data:', defaultData);
             this.currentSample = defaultData;
             this.renderForm(defaultData, true);
-            
+
             // Don't clear operation flag immediately - let it be cleared when user saves or when another explicit action occurs
         } catch (error) {
             console.error('Error creating new sample:', error);
@@ -593,12 +593,12 @@ class NMRSampleManager {
         try {
             // Auto-eject all previous samples before creating duplicate
             await this.ejectAllPreviousSamples();
-            
+
             const newLabel = prompt('Enter label for duplicated sample:', 'Duplicate');
             if (!newLabel) return;
 
             const newFilename = await this.fileManager.duplicateSample(this.selectedSampleFile, newLabel);
-            
+
             // Load the new sample for editing
             const newData = await this.fileManager.readSample(newFilename);
             this.currentSample = newData;
@@ -633,11 +633,11 @@ class NMRSampleManager {
         try {
             console.log('Ejecting sample:', this.selectedSampleFile);
             await this.fileManager.ejectSample(this.selectedSampleFile);
-            
+
             // Refresh the sample list to update status
             console.log('Refreshing sample list after ejection');
             await this.fileManager.scanForSamples();
-            
+
             this.showSuccess('Sample ejected successfully');
         } catch (error) {
             console.error('Error ejecting sample:', error);
@@ -647,9 +647,9 @@ class NMRSampleManager {
 
     renderForm(data, editable = false) {
         const formContainer = document.getElementById('sample-form');
-        
+
         console.log('Rendering form, editable:', editable, 'data:', data);
-        
+
         // Always unmount React components first to avoid conflicts
         if (this.currentReactRoot) {
             try {
@@ -659,10 +659,10 @@ class NMRSampleManager {
             }
             this.currentReactRoot = null;
         }
-        
+
         // Clear container completely
         formContainer.innerHTML = '';
-        
+
         if (!editable) {
             // Show nicely formatted sample details
             this.generateSampleDetailsView(data).then(html => {
@@ -676,10 +676,10 @@ class NMRSampleManager {
 
         try {
             // Check if React JSON Schema Form v1.8.1 is loaded
-            console.log('Available globals:', Object.keys(window).filter(k => 
+            console.log('Available globals:', Object.keys(window).filter(k =>
                 k.includes('JSON') || k.includes('Form') || k.includes('RJSF')
             ));
-            
+
             if (!window.JSONSchemaForm) {
                 formContainer.innerHTML = '<p class="error">React JSON Schema Form not loaded. Please check your internet connection.</p>';
                 return;
@@ -687,10 +687,10 @@ class NMRSampleManager {
 
             // Use the working v1.8.1 API
             const Form = window.JSONSchemaForm.default || window.JSONSchemaForm;
-            
+
             console.log('Form component:', Form);
             console.log('Form type:', typeof Form);
-            
+
             // Create React form props (v1.8.1 API - simple and reliable)
             const formProps = {
                 schema: this.schemaHandler.getSchema(),
@@ -710,11 +710,11 @@ class NMRSampleManager {
 
             // Create form element using React.createElement
             const formElement = React.createElement(Form, formProps);
-            
+
             // Use ReactDOM.render (React 16)
             ReactDOM.render(formElement, formContainer);
             this.currentReactRoot = formContainer;
-            
+
         } catch (error) {
             console.error('Error rendering form:', error);
             // Clear any React components first, then show error
@@ -727,7 +727,7 @@ class NMRSampleManager {
         try {
             // Process form data
             const processedData = this.schemaHandler.processFormData(formData);
-            
+
             // Generate filename if this is a new sample
             let filename = this.selectedSampleFile;
             if (!filename) {
@@ -737,15 +737,15 @@ class NMRSampleManager {
 
             // Save the sample
             await this.fileManager.writeSample(filename, processedData);
-            
+
             // Clear any ongoing operation since save is complete
             this.currentOperation = null;
-            
+
             this.showSuccess(`Sample saved successfully: ${filename}`);
-            
+
             // Clear form
             this.clearForm();
-            
+
         } catch (error) {
             console.error('Error saving sample:', error);
             this.showError('Failed to save sample: ' + error.message);
@@ -760,20 +760,20 @@ class NMRSampleManager {
     clearForm() {
         const formContainer = document.getElementById('sample-form');
         formContainer.innerHTML = '<p class="form-placeholder">Select a sample or create a new one to see the form</p>';
-        
+
         // Clear selection
         this.currentSample = null;
         this.selectedSampleFile = null;
-        
+
         // Reset radio buttons
         document.querySelectorAll('input[name="selected-sample"]').forEach(radio => {
             radio.checked = false;
         });
-        
+
         document.querySelectorAll('.sample-item').forEach(item => {
             item.classList.remove('selected');
         });
-        
+
         this.updateButtonStates(false);
     }
 
@@ -814,7 +814,7 @@ class NMRSampleManager {
 
     generateUsersSection(users) {
         if (!users || users.length === 0) return '';
-        
+
         return `
             <div class="detail-row">
                 <div class="detail-label">Users</div>
@@ -847,8 +847,8 @@ class NMRSampleManager {
                 }
             });
             content = '<ul style="margin: 0; padding-left: 1.2rem;">' +
-                      componentLines.map(line => `<li>${line}</li>`).join('') +
-                      '</ul>';
+                componentLines.map(line => `<li>${line}</li>`).join('') +
+                '</ul>';
         }
 
         return content ? `
@@ -898,21 +898,21 @@ class NMRSampleManager {
         if (buffer.solvent) {
             otherInfo.push(`<strong>Solvent:</strong> ${this.escapeHtml(buffer.solvent)}`);
         }
-        
+
         if (componentsList.length === 0 && otherInfo.length === 0) return '';
-        
+
         let content = '';
         if (componentsList.length > 0) {
-            content += '<ul style="margin: 0; padding-left: 1.2rem;">' + 
-                      componentsList.map(line => `<li>${line}</li>`).join('') + 
-                      '</ul>';
+            content += '<ul style="margin: 0; padding-left: 1.2rem;">' +
+                componentsList.map(line => `<li>${line}</li>`).join('') +
+                '</ul>';
             if (otherInfo.length > 0) {
                 content += '<br>' + otherInfo.join('<br>');
             }
         } else {
             content = otherInfo.join('<br>');
         }
-        
+
         return `
             <div class="detail-row">
                 <div class="detail-label">Buffer</div>
@@ -926,8 +926,8 @@ class NMRSampleManager {
 
         const contentLines = [];
 
-        if (tube.diameter !== undefined && tube.diameter !== null) {
-            contentLines.push(`<strong>Diameter:</strong> ${tube.diameter} mm`);
+        if (tube.diameter_mm !== undefined && tube.diameter_mm !== null) {
+            contentLines.push(`<strong>Diameter:</strong> ${tube.diameter_mm} mm`);
         }
 
         if (tube.type) {
@@ -982,7 +982,7 @@ class NMRSampleManager {
 
     generateNotesSection(notes) {
         if (!notes) return '';
-        
+
         return `
             <div class="detail-row">
                 <div class="detail-label">Notes</div>
@@ -993,45 +993,45 @@ class NMRSampleManager {
 
     generateMetadataSection(metadata) {
         if (!metadata) return '';
-        
+
         const contentLines = [];
-        
+
         if (metadata.created_timestamp) {
             const createdDate = new Date(metadata.created_timestamp);
             const dateStr = createdDate.toLocaleDateString('en-GB', {
                 weekday: 'short',
-                day: 'numeric', 
+                day: 'numeric',
                 month: 'short',
                 year: 'numeric'
             });
             const timeStr = createdDate.toTimeString().split(' ')[0];
             contentLines.push(`<strong>Created:</strong> ${dateStr} ${timeStr}`);
         }
-        
+
         if (metadata.modified_timestamp) {
             const modifiedDate = new Date(metadata.modified_timestamp);
             const dateStr = modifiedDate.toLocaleDateString('en-GB', {
                 weekday: 'short',
-                day: 'numeric', 
+                day: 'numeric',
                 month: 'short',
                 year: 'numeric'
             });
             const timeStr = modifiedDate.toTimeString().split(' ')[0];
             contentLines.push(`<strong>Modified:</strong> ${dateStr} ${timeStr}`);
         }
-        
+
         if (metadata.ejected_timestamp) {
             const ejectedDate = new Date(metadata.ejected_timestamp);
             const dateStr = ejectedDate.toLocaleDateString('en-GB', {
                 weekday: 'short',
-                day: 'numeric', 
+                day: 'numeric',
                 month: 'short',
                 year: 'numeric'
             });
             const timeStr = ejectedDate.toTimeString().split(' ')[0];
             contentLines.push(`<strong>Ejected:</strong> ${dateStr} ${timeStr}`);
         }
-        
+
         return contentLines.length > 0 ? `
             <div class="detail-row">
                 <div class="detail-label">Metadata</div>
@@ -1043,30 +1043,30 @@ class NMRSampleManager {
     async generateExperimentsSection(sampleData) {
         try {
             const timelineData = await this.fileManager.generateTimelineData();
-            
+
             // Get sample lifecycle timestamps
             const metadata = sampleData.metadata || {};
             const sampleCreated = metadata.created_timestamp ? new Date(metadata.created_timestamp) : null;
             const sampleEjected = metadata.ejected_timestamp ? new Date(metadata.ejected_timestamp) : null;
-            
+
             // Filter to only show experiment events within sample lifecycle
             let experimentEvents = timelineData.filter(event => event.type === 'Experiment');
-            
+
             // Filter by sample lifecycle if we have timestamps
             if (sampleCreated) {
                 experimentEvents = experimentEvents.filter(event => {
                     const experimentTime = event.rawTimestamp;
-                    
+
                     // Must be after sample creation
                     if (experimentTime < sampleCreated) return false;
-                    
+
                     // Must be before sample ejection (if ejected)
                     if (sampleEjected && experimentTime > sampleEjected) return false;
-                    
+
                     return true;
                 });
             }
-            
+
             if (experimentEvents.length === 0) {
                 return `
                     <div class="experiments-section">
@@ -1075,20 +1075,20 @@ class NMRSampleManager {
                     </div>
                 `;
             }
-            
+
             let tableRows = '';
             experimentEvents.forEach((event) => {
                 const date = event.rawTimestamp.toLocaleDateString('en-GB', {
                     weekday: 'short',
-                    day: 'numeric', 
+                    day: 'numeric',
                     month: 'short',
                     year: 'numeric'
                 });
                 const time = event.rawTimestamp.toTimeString().split(' ')[0];
-                
+
                 // Use consistent darker shading for all rows
                 let rowClass = 'timeline-group-1';
-                
+
                 tableRows += `
                     <tr class="${rowClass}">
                         <td>${event.experimentNumber}</td>
@@ -1099,7 +1099,7 @@ class NMRSampleManager {
                     </tr>
                 `;
             });
-            
+
             return `
                 <div class="experiments-section">
                     <h4>Experiments (${experimentEvents.length})</h4>
@@ -1154,25 +1154,25 @@ class NMRSampleManager {
     assignSampleGroupColors(timelineData) {
         const result = [];
         const hasSamples = timelineData.some(event => event.type === 'Sample');
-        
+
         if (hasSamples) {
             // Use sample-based coloring (existing logic)
             let currentColorIndex = 0;
             let currentSample = null;
-            
+
             timelineData.forEach((event) => {
                 if (event.type === 'Sample' && event.event === 'Created') {
                     // New sample session starts
                     currentSample = event.details;
                     currentColorIndex = currentColorIndex === 0 ? 1 : 0; // Alternate between 0 and 1
                 }
-                
+
                 // Assign current color to this event
                 result.push({
                     ...event,
                     colorGroup: currentColorIndex
                 });
-                
+
                 if (event.type === 'Sample' && event.event === 'Ejected' && event.details === currentSample) {
                     // Sample session ends
                     currentSample = null;
@@ -1180,23 +1180,23 @@ class NMRSampleManager {
             });
         } else {
             // Use holder-based coloring when no samples exist
-            const hasNonZeroHolders = timelineData.some(event => 
+            const hasNonZeroHolders = timelineData.some(event =>
                 event.holder && event.holder !== '0' && event.holder !== 0
             );
-            
+
             if (hasNonZeroHolders) {
                 let currentColorIndex = 0;
                 let currentHolder = null;
-                
+
                 timelineData.forEach((event) => {
                     const eventHolder = event.holder || null;
-                    
+
                     // Change color when holder changes
                     if (eventHolder !== currentHolder) {
                         currentHolder = eventHolder;
                         currentColorIndex = currentColorIndex === 0 ? 1 : 0;
                     }
-                    
+
                     result.push({
                         ...event,
                         colorGroup: currentColorIndex
@@ -1212,7 +1212,7 @@ class NMRSampleManager {
                 });
             }
         }
-        
+
         return result;
     }
 
@@ -1223,7 +1223,7 @@ class NMRSampleManager {
         try {
             const timelineData = await this.fileManager.generateTimelineData();
             this.renderTimeline(timelineData);
-            
+
         } catch (error) {
             console.error('Error showing timeline:', error);
             this.showError('Failed to load timeline: ' + error.message);
@@ -1235,7 +1235,7 @@ class NMRSampleManager {
      */
     renderTimeline(timelineData) {
         const contentArea = document.getElementById('sample-form');
-        
+
         if (timelineData.length === 0) {
             contentArea.innerHTML = `
                 <div class="timeline-view">
@@ -1259,23 +1259,23 @@ class NMRSampleManager {
             // Format date as "Mon 9 Oct 2023"
             const date = event.rawTimestamp.toLocaleDateString('en-GB', {
                 weekday: 'short',
-                day: 'numeric', 
+                day: 'numeric',
                 month: 'short',
                 year: 'numeric'
             });
             const time = event.rawTimestamp.toTimeString().split(' ')[0];
-            
+
             // Use sample group color class and add bold for sample creation
             let rowClass = `timeline-group-${event.colorGroup}`;
             if (event.type === 'Sample' && event.event === 'Created') {
                 rowClass += ' timeline-sample-created';
             }
-            
+
             // Show experiment number for experiments, or just the type for samples
             const typeDisplay = event.type === 'Experiment' ? event.experimentNumber : event.type;
-            
+
             const holderCell = shouldShowHolderColumn ? `<td>${event.holder || '-'}</td>` : '';
-            
+
             tableRows += `
                 <tr class="${rowClass}">
                     <td>${date}</td>

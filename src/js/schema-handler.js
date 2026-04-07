@@ -68,7 +68,7 @@ class SchemaHandler {
             },
             nmr_tube: {
                 sample_volume_uL: null,
-                diameter: null,
+                diameter_mm: null,
                 type: ''
             },
             reference: {
@@ -172,7 +172,7 @@ class SchemaHandler {
                 sample_mass_mg: {
                     "ui:placeholder": "e.g., 10"
                 },
-                diameter: {
+                diameter_mm: {
                     "ui:placeholder": "e.g., 5"
                 },
                 type: {
