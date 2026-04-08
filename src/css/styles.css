@@ -410,6 +410,25 @@ body {
     padding-left: 1rem;
 }
 
+.detail-subgrid {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.15rem 0.75rem;
+    align-items: baseline;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.detail-subgrid dt {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.detail-subgrid dd {
+    margin: 0;
+}
+
 .experiments-section {
     margin-top: 1.5rem;
     padding-top: 1rem;

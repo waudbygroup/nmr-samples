@@ -127,7 +127,6 @@ class FileManager {
                 data.metadata.created_timestamp = now;
             }
             data.metadata.modified_timestamp = now;
-            data.metadata.schema_version = "0.1.0";
 
             const fileHandle = await this.currentDirectoryHandle.getFileHandle(filename, {
                 create: true

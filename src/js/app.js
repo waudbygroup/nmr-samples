@@ -817,16 +817,16 @@ class NMRSampleManager {
         const groups = people?.groups;
         if ((!users || users.length === 0) && (!groups || groups.length === 0)) return '';
 
-        const lines = [];
+        const rows = [];
         if (users && users.length > 0)
-            lines.push(`<strong>Users:</strong> ${users.map(u => this.escapeHtml(u)).join(', ')}`);
+            rows.push(`<dt>Users</dt><dd>${users.map(u => this.escapeHtml(u)).join(', ')}</dd>`);
         if (groups && groups.length > 0)
-            lines.push(`<strong>Groups:</strong> ${groups.map(g => this.escapeHtml(g)).join(', ')}`);
+            rows.push(`<dt>Groups</dt><dd>${groups.map(g => this.escapeHtml(g)).join(', ')}</dd>`);
 
         return `
             <div class="detail-row">
                 <div class="detail-label">People</div>
-                <div class="detail-content">${lines.join('<br>')}</div>
+                <div class="detail-content"><dl class="detail-subgrid">${rows.join('')}</dl></div>
             </div>
         `;
     }
@@ -834,9 +834,9 @@ class NMRSampleManager {
     generateSampleSection(sample) {
         if (!sample) return '';
 
-        const extraLines = [];
+        const extraRows = [];
         if (sample.physical_form) {
-            extraLines.push(`<strong>Physical form:</strong> ${this.escapeHtml(sample.physical_form)}`);
+            extraRows.push(`<dt>Physical form</dt><dd>${this.escapeHtml(sample.physical_form)}</dd>`);
         }
 
         let content = '';
@@ -864,8 +864,8 @@ class NMRSampleManager {
                 '</ul>';
         }
 
-        if (extraLines.length > 0) {
-            content += (content ? '<br>' : '') + extraLines.join('<br>');
+        if (extraRows.length > 0) {
+            content += `<dl class="detail-subgrid"${content ? ' style="margin-top:0.35rem"' : ''}>${extraRows.join('')}</dl>`;
         }
 
         return content ? `
@@ -899,21 +899,21 @@ class NMRSampleManager {
             });
         }
 
-        // Add other buffer info with bold labels
+        // Add other buffer info
         if (buffer.ph !== undefined && buffer.ph !== null) {
-            otherInfo.push(`<strong>pH:</strong> ${buffer.ph}`);
+            otherInfo.push(`<dt>pH</dt><dd>${buffer.ph}</dd>`);
         }
 
         if (buffer.chemical_shift_reference && buffer.chemical_shift_reference !== 'none') {
-            let referenceText = `<strong>Chemical shift reference:</strong> ${this.escapeHtml(buffer.chemical_shift_reference)}`;
+            let referenceValue = this.escapeHtml(buffer.chemical_shift_reference);
             if (buffer.reference_concentration !== undefined && buffer.reference_unit) {
-                referenceText += ` (${buffer.reference_concentration} ${buffer.reference_unit})`;
+                referenceValue += ` (${buffer.reference_concentration} ${buffer.reference_unit})`;
             }
-            otherInfo.push(referenceText);
+            otherInfo.push(`<dt>Chemical shift reference</dt><dd>${referenceValue}</dd>`);
         }
 
         if (buffer.solvent) {
-            otherInfo.push(`<strong>Solvent:</strong> ${this.escapeHtml(buffer.solvent)}`);
+            otherInfo.push(`<dt>Solvent</dt><dd>${this.escapeHtml(buffer.solvent)}</dd>`);
         }
 
         if (componentsList.length === 0 && otherInfo.length === 0) return '';
@@ -924,10 +924,10 @@ class NMRSampleManager {
                 componentsList.map(line => `<li>${line}</li>`).join('') +
                 '</ul>';
             if (otherInfo.length > 0) {
-                content += '<br>' + otherInfo.join('<br>');
+                content += `<dl class="detail-subgrid" style="margin-top:0.35rem">${otherInfo.join('')}</dl>`;
             }
         } else {
-            content = otherInfo.join('<br>');
+            content = `<dl class="detail-subgrid">${otherInfo.join('')}</dl>`;
         }
 
         return `
@@ -941,36 +941,36 @@ class NMRSampleManager {
     generateNMRTubeSection(tube) {
         if (!tube) return '';
 
-        const contentLines = [];
+        const rows = [];
 
         if (tube.diameter_mm !== undefined && tube.diameter_mm !== null) {
-            contentLines.push(`<strong>Diameter:</strong> ${tube.diameter_mm} mm`);
+            rows.push(`<dt>Diameter</dt><dd>${tube.diameter_mm} mm</dd>`);
         }
 
         if (tube.type) {
-            contentLines.push(`<strong>Type:</strong> ${this.escapeHtml(tube.type)}`);
+            rows.push(`<dt>Type</dt><dd>${this.escapeHtml(tube.type)}</dd>`);
         }
 
         if (tube.sample_volume_uL !== undefined && tube.sample_volume_uL !== null) {
-            contentLines.push(`<strong>Volume:</strong> ${tube.sample_volume_uL} µL`);
+            rows.push(`<dt>Volume</dt><dd>${tube.sample_volume_uL} µL</dd>`);
         }
 
         if (tube.sample_mass_mg !== undefined && tube.sample_mass_mg !== null) {
-            contentLines.push(`<strong>Mass:</strong> ${tube.sample_mass_mg} mg`);
+            rows.push(`<dt>Mass</dt><dd>${tube.sample_mass_mg} mg</dd>`);
         }
 
         if (tube.rack_id) {
-            contentLines.push(`<strong>Rack ID:</strong> ${this.escapeHtml(tube.rack_id)}`);
+            rows.push(`<dt>Rack ID</dt><dd>${this.escapeHtml(tube.rack_id)}</dd>`);
         }
 
         if (tube.rotor_serial) {
-            contentLines.push(`<strong>Rotor serial:</strong> ${this.escapeHtml(tube.rotor_serial)}`);
+            rows.push(`<dt>Rotor serial</dt><dd>${this.escapeHtml(tube.rotor_serial)}</dd>`);
         }
 
-        return contentLines.length > 0 ? `
+        return rows.length > 0 ? `
             <div class="detail-row">
                 <div class="detail-label">NMR Tube / Rotor</div>
-                <div class="detail-content">${contentLines.join('<br>')}</div>
+                <div class="detail-content"><dl class="detail-subgrid">${rows.join('')}</dl></div>
             </div>
         ` : '';
     }
@@ -979,20 +979,20 @@ class NMRSampleManager {
     generateLabReferenceSection(labRef) {
         if (!labRef) return '';
 
-        const contentLines = [];
+        const rows = [];
 
         if (labRef.labbook_entry) {
-            contentLines.push(`<strong>Labbook:</strong> ${this.escapeHtml(labRef.labbook_entry)}`);
+            rows.push(`<dt>Labbook</dt><dd>${this.escapeHtml(labRef.labbook_entry)}</dd>`);
         }
 
         if (labRef.sample_id) {
-            contentLines.push(`<strong>Sample ID:</strong> ${this.escapeHtml(labRef.sample_id)}`);
+            rows.push(`<dt>Sample ID</dt><dd>${this.escapeHtml(labRef.sample_id)}</dd>`);
         }
 
-        return contentLines.length > 0 ? `
+        return rows.length > 0 ? `
             <div class="detail-row">
                 <div class="detail-label">Lab Reference</div>
-                <div class="detail-content">${contentLines.join('<br>')}</div>
+                <div class="detail-content"><dl class="detail-subgrid">${rows.join('')}</dl></div>
             </div>
         ` : '';
     }
@@ -1011,48 +1011,30 @@ class NMRSampleManager {
     generateMetadataSection(metadata) {
         if (!metadata) return '';
 
-        const contentLines = [];
+        const rows = [];
 
         if (metadata.created_timestamp) {
-            const createdDate = new Date(metadata.created_timestamp);
-            const dateStr = createdDate.toLocaleDateString('en-GB', {
-                weekday: 'short',
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric'
-            });
-            const timeStr = createdDate.toTimeString().split(' ')[0];
-            contentLines.push(`<strong>Created:</strong> ${dateStr} ${timeStr}`);
+            const d = new Date(metadata.created_timestamp);
+            const dateStr = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+            rows.push(`<dt>Created</dt><dd>${dateStr} ${d.toTimeString().split(' ')[0]}</dd>`);
         }
 
         if (metadata.modified_timestamp) {
-            const modifiedDate = new Date(metadata.modified_timestamp);
-            const dateStr = modifiedDate.toLocaleDateString('en-GB', {
-                weekday: 'short',
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric'
-            });
-            const timeStr = modifiedDate.toTimeString().split(' ')[0];
-            contentLines.push(`<strong>Modified:</strong> ${dateStr} ${timeStr}`);
+            const d = new Date(metadata.modified_timestamp);
+            const dateStr = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+            rows.push(`<dt>Modified</dt><dd>${dateStr} ${d.toTimeString().split(' ')[0]}</dd>`);
         }
 
         if (metadata.ejected_timestamp) {
-            const ejectedDate = new Date(metadata.ejected_timestamp);
-            const dateStr = ejectedDate.toLocaleDateString('en-GB', {
-                weekday: 'short',
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric'
-            });
-            const timeStr = ejectedDate.toTimeString().split(' ')[0];
-            contentLines.push(`<strong>Ejected:</strong> ${dateStr} ${timeStr}`);
+            const d = new Date(metadata.ejected_timestamp);
+            const dateStr = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+            rows.push(`<dt>Ejected</dt><dd>${dateStr} ${d.toTimeString().split(' ')[0]}</dd>`);
         }
 
-        return contentLines.length > 0 ? `
+        return rows.length > 0 ? `
             <div class="detail-row">
                 <div class="detail-label">Metadata</div>
-                <div class="detail-content">${contentLines.join('<br>')}</div>
+                <div class="detail-content"><dl class="detail-subgrid">${rows.join('')}</dl></div>
             </div>
         ` : '';
     }

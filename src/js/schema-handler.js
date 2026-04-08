@@ -16,6 +16,7 @@ class SchemaHandler {
         try {
             if (window.EMBEDDED_SCHEMA) {
                 this.schema = window.EMBEDDED_SCHEMA;
+                this.currentVersion = this.schema.version;
                 return this.schema;
             } else {
                 throw new Error('Embedded schema not found');
