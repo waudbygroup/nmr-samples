@@ -789,7 +789,7 @@ class NMRSampleManager {
                     <h3>Sample: ${this.escapeHtml(sampleLabel)}</h3>
                 </div>
                 <div class="sample-details-body">
-                    ${this.generateUsersSection(data.people?.users)}
+                    ${this.generatePeopleSection(data.people)}
                     ${this.generateSampleSection(data.sample)}
                     ${this.generateBufferSection(data.buffer)}
                     ${this.generateNMRTubeSection(data.nmr_tube)}
@@ -812,19 +812,32 @@ class NMRSampleManager {
             .replace(/'/g, "&#039;");
     }
 
-    generateUsersSection(users) {
-        if (!users || users.length === 0) return '';
+    generatePeopleSection(people) {
+        const users = people?.users;
+        const groups = people?.groups;
+        if ((!users || users.length === 0) && (!groups || groups.length === 0)) return '';
+
+        const lines = [];
+        if (users && users.length > 0)
+            lines.push(`<strong>Users:</strong> ${users.map(u => this.escapeHtml(u)).join(', ')}`);
+        if (groups && groups.length > 0)
+            lines.push(`<strong>Groups:</strong> ${groups.map(g => this.escapeHtml(g)).join(', ')}`);
 
         return `
             <div class="detail-row">
-                <div class="detail-label">Users</div>
-                <div class="detail-content">${users.map(user => this.escapeHtml(user)).join(', ')}</div>
+                <div class="detail-label">People</div>
+                <div class="detail-content">${lines.join('<br>')}</div>
             </div>
         `;
     }
 
     generateSampleSection(sample) {
         if (!sample) return '';
+
+        const extraLines = [];
+        if (sample.physical_form) {
+            extraLines.push(`<strong>Physical form:</strong> ${this.escapeHtml(sample.physical_form)}`);
+        }
 
         let content = '';
 
@@ -849,6 +862,10 @@ class NMRSampleManager {
             content = '<ul style="margin: 0; padding-left: 1.2rem;">' +
                 componentLines.map(line => `<li>${line}</li>`).join('') +
                 '</ul>';
+        }
+
+        if (extraLines.length > 0) {
+            content += (content ? '<br>' : '') + extraLines.join('<br>');
         }
 
         return content ? `
