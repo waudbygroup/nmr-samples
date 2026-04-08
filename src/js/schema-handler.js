@@ -27,10 +27,15 @@ class SchemaHandler {
     }
 
     /**
-     * Get the current schema
+     * Get the current schema, stripped of $schema so ajv 6.x (bundled with
+     * RJSF 1.8.1) doesn't attempt to resolve the Draft 2019-09 meta-schema
+     * URI, which it doesn't know about.  The canonical schema file on disk is
+     * never modified.
      */
     getSchema() {
-        return this.schema;
+        const schema = Object.assign({}, this.schema);
+        delete schema.$schema;
+        return schema;
     }
 
     /**
